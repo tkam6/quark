@@ -62,7 +62,7 @@ echo -s , hello world
 
 ## Building from source
 
-Python 3.13.15 and Nuitka 4.0.8 are required for building the project.  
+Python 3.13.15 and Nuitka 4.2.1 are required for building the project.  
 See the full list of dependencies in `build_reqmts.txt`.
 
 Go to the project root, and build the project with the build script `dev/pc.py`
