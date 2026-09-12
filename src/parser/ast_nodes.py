@@ -14,6 +14,9 @@ class Tok:
     def __str__(self) -> str:
         return self.__repr__()
 
+    def __len__(self) -> int:
+        return len(self.val)
+
 
 @dc.dataclass(repr=False)
 class Op(Tok):

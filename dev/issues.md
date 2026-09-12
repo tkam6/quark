@@ -17,6 +17,9 @@ some errors takes place before the redirect stream is set).
 error code returned will be 0. Do `ls -l ~/Downloads/; a`, then the error code
 will be 200. Removing the unknown command (`a`) will still leave the error code
 at 200. `ls -l ~/Downloads/;` after this still leaves the error code at 200.
+- Executing `exit` in forked processes does something weird. Like, something
+related to shared memory. I think probably because `sys.exit(...)` tries to
+close the shared memory descriptor or something...
 
 ## Utilities
 

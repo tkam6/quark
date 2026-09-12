@@ -51,7 +51,7 @@ class Parser:
         self,
         ln: str,
         start: int,
-        quote: str
+        quote: str,
     ) -> past.Quoted | int:
         """
         Get a quoted token from the source line.
@@ -93,14 +93,16 @@ class Parser:
     def _get_nxt_param(
         self,
         ln: str,
+        usr_dir: str,
         pth: str,
-        start: int
+        start: int,
     ) -> past.Tok | past.Op | None | int:
         param: past.Param | past.Op | int | None
 
         # Encountered whitespace
         idx = start
         idx = self._skip_ws(ln, len(ln), idx)
+        shell_exp = True
 
         if ln[idx] in pint.QUOTES:
             param = self._get_quoted_tok(ln, idx, ln[idx])
@@ -117,27 +119,33 @@ class Parser:
         escd_param = self._reslv_esc_chrs(param)
         if isinstance(escd_param, int):
             return escd_param
+        if isinstance(escd_param, past.Op):
+            return escd_param
 
-        param_len = len(escd_param.val)
-        param_recons = []   # WHAT?!?
-        skip = 0
-        for i, ch in enumerate(escd_param.val, start=start):
-            if skip:
-                skip -= 1
-                continue
-            if ch == "\\" and i < param_len - 1 and ln[i + 1] == "*":
-                skip += 1
-                param_recons.append("*")
-                continue
-            # TODO: Add logic for globbing!
+        parts, param = escd_param
+        param_len = len(param)
 
-        return escd_param
+        final = []
+        for part, status in parts:
+            # No shell expansion allowed, meaning it was escaped, like "\~"
+            if not status:
+                final.append(part)
+                continue
+            if part[0] == "~":
+                final.append(usr_dir + part[1 :])
+                continue
+            final.append(part)
+
+        param.val = "".join(final)
+        return param
 
     def _reslv_esc_chrs(
         self,
         param: past.Param | past.Op
-    ) -> past.Param | past.Op | int:
-        reslvd_val = []
+    ) -> tuple[list[tuple[str, bool]], past.Param] | past.Op | int:
+        parts: list[tuple[str, bool]]
+
+        parts = []
         param_len = len(param.val)
         skip = 0
         escd_hyp = False
@@ -145,54 +153,62 @@ class Parser:
         if isinstance(param, past.Op):
             return param
 
+        cur_part = []
         for i, char in enumerate(param.val):
             if skip:
                 skip -= 1
                 continue
-
             if char != "\\":
-                reslvd_val.append(char)
+                cur_part.append(char)
                 continue
             if i == param_len - 1:
                 ugen.err_Q(f"Lone backslash at position {param.start + i}")
                 return uerr.ERR_LONE_B_SLASH
 
-            tmp = pint.ESC_CHR_MAP.get("\\" + param.val[i + 1])
+            esc_chr_chk_res = pint.ESC_CHR_MAP.get("\\" + param.val[i + 1])
+            dir_exp_chr_chk_res = pint.DIR_EXP_CHRS.get("\\" + param.val[i + 1])
             # If 2nd character is not in the escape character dict AND the 2nd
             # character is not one of the globbing characters, append it as it
             # is to the array, because, for example, we shouldn't change \*.
             # Later comment: I think the statement below is pure nonsense
             # if tmp is None and param.val[i + 1] not in pint.GLOB_CHS:
-            if tmp is None:
-                reslvd_val.append(param.val[i + 1])
+
+            # Basic explanation:
+            # Check if next char is in escape char map.
+            # Check if next char is in shell expansion map.
+            # If it's NOT in BOTH, then append the following char as it is.
+            # If it's in shell expansion map, append specially (TBD).
+            # If it's in BOTH, escape character resolution is given preference.
+            if esc_chr_chk_res is None and dir_exp_chr_chk_res is None:
+                cur_part.append(param.val[i + 1])
+            elif esc_chr_chk_res is None:
+                parts.append(("".join(cur_part), True))
+                parts.append((param.val[i + 1], False))
+                cur_part = []
             else:
-                reslvd_val.append(tmp)
+                cur_part.append(esc_chr_chk_res)
             skip += 1
 
             if not i and param.val[i + 1] == "-":
                 escd_hyp = True
 
+        # Add any residual chars, after any escape/expansion chars. Also
+        # happens if there were no escape/expansion chars
+        if cur_part:
+            parts.append(("".join(cur_part), True))
+
+        param.escd_hyp = escd_hyp
         # Quoted
         if isinstance(param, past.Quoted):
-            return past.Quoted(
-                val="".join(reslvd_val),
-                quote=param.quote,
-                escd_hyp=escd_hyp,
-                start=param.start,
-                end=param.end,
-            )
-        # Unquoted, unless I'm very mistaken
+            return (parts, param)
+        # Unquoted, unless I'm very much mistaken
         else:
-            return past.Unquoted(
-                val="".join(reslvd_val),
-                escd_hyp=escd_hyp,
-                start=param.start,
-                end=param.end,
-            )
+            return (parts, param)
 
     def _get_simp_cmd(
         self,
         ln: str,
+        usr_dir: str,
         pth: str,
         start: int
     ) -> past.SimpCmd | int:
@@ -201,7 +217,7 @@ class Parser:
         idx = self._skip_ws(ln, ln_len, idx)
         params = []
         while idx < ln_len:
-            nxt_param = self._get_nxt_param(ln, pth, idx)
+            nxt_param = self._get_nxt_param(ln, usr_dir, pth, idx)
             if isinstance(nxt_param, int):
                 return nxt_param
             # When the next parameter is not related to SimpCmd, e.g. an
@@ -216,8 +232,9 @@ class Parser:
     def get_cmd_expr(
         self,
         ln: str,
+        usr_dir: str,
         pth: str,
-        start: int
+        start: int,
     ) -> tuple[past.CmdExpr, int] | int:
         op: past.Op
         ops: list[past.Op]
@@ -228,7 +245,7 @@ class Parser:
         ops = []
 
         # Get the first operand
-        simp_cmd = self._get_simp_cmd(ln, pth, start)
+        simp_cmd = self._get_simp_cmd(ln, usr_dir, pth, start)
         if isinstance(simp_cmd, int):
             return simp_cmd
         simp_cmds.append(simp_cmd)
@@ -259,7 +276,7 @@ class Parser:
 
             # Get each subsequent operand
             idx = self._skip_ws(ln, ln_len, idx)
-            simp_cmd = self._get_simp_cmd(ln, pth, idx)
+            simp_cmd = self._get_simp_cmd(ln, usr_dir, pth, idx)
             if isinstance(simp_cmd, int):
                 return simp_cmd
             simp_cmds.append(simp_cmd)
@@ -268,7 +285,7 @@ class Parser:
 
         return (past.CmdExpr(simp_cmds, ops), idx)
 
-    def get_cmd_seq(self, ln: str, pth: str, start: int = 0):
+    def get_cmd_seq(self, ln: str, usr_dir: str, pth: str, start: int = 0):
         cmd_exprs: list[past.CmdExpr]
 
         ln_len = len(ln)
@@ -276,7 +293,7 @@ class Parser:
         cmd_exprs = []
 
         idx = self._skip_ws(ln, ln_len, idx)
-        res = self.get_cmd_expr(ln, pth, start)
+        res = self.get_cmd_expr(ln, usr_dir, pth, start)
         if isinstance(res, int):
             return cmd_exprs
         cmd_expr, idx = res
@@ -291,7 +308,7 @@ class Parser:
             idx += 1
 
             idx = self._skip_ws(ln, ln_len, idx)
-            res = self.get_cmd_expr(ln, pth, idx)
+            res = self.get_cmd_expr(ln, usr_dir, pth, idx)
             if isinstance(res, int):
                 return cmd_exprs
             cmd_expr, idx = res

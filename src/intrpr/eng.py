@@ -1006,6 +1006,7 @@ class Intrpr:
                 cmd_seq.pop(idx)
                 cmd_seq[idx : idx] = self.parser.get_cmd_seq(
                     err_code_or_alias,
+                    self.usr_dir,
                     os.getcwd(),
                     start=0
                 )
@@ -1106,7 +1107,7 @@ class Intrpr:
         return cmd_ret
 
     def exec(self, ln: str):
-        tmp = self.parser.get_cmd_seq(ln, os.getcwd(), start=0)
+        tmp = self.parser.get_cmd_seq(ln, self.usr_dir, os.getcwd(), start=0)
         if isinstance(tmp, int):
             return tmp
         return self.exec_cmd_seq(tmp)

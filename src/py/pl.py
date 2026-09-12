@@ -123,7 +123,6 @@ def run(data: ugen.CmdData) -> int:
     err_code = uerr.ERR_ALL_GOOD
     fields = ["pid", "name"]
     exact = False
-    escape = False
     wrt_headers = True
     filter_by_pid = False
     regexes = []

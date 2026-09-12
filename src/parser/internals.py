@@ -30,11 +30,12 @@ class SpChr:
         return self.__repr__()
 
 
-QUOTES = ("'", "\"")
+QUOTES = ("'", "\"", "`")
 LOGI_OPS = ("&", "^")
 DATA_OPS = ("|", ">", "?")
 CMD_SEPRS = (";",)
 GLOB_CHS = ("*",)
+DIR_EXP_CHRS = {"\\~": "~"}
 ESC_CHR_MAP = {
     "\\\\": "\\",
     "\\'": "'",
