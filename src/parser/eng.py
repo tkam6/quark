@@ -95,6 +95,7 @@ class Parser:
         ln: str,
         usr_dir: str,
         pth: str,
+        do_shell_exp: bool,
         start: int,
     ) -> past.Tok | past.Op | None | int:
         param: past.Param | past.Op | int | None
@@ -128,7 +129,9 @@ class Parser:
         final = []
         for part, status in parts:
             # No shell expansion allowed, meaning it was escaped, like "\~"
-            if not status:
+            # If first parameter, do not perform shell expansion, because I've
+            # got no plans of adding direct calls to scripts
+            if not status or not do_shell_exp:
                 final.append(part)
                 continue
             if part[0] == "~":
@@ -217,7 +220,7 @@ class Parser:
         idx = self._skip_ws(ln, ln_len, idx)
         params = []
         while idx < ln_len:
-            nxt_param = self._get_nxt_param(ln, usr_dir, pth, idx)
+            nxt_param = self._get_nxt_param(ln, usr_dir, pth, do_shell_exp=idx != 0, start=idx)
             if isinstance(nxt_param, int):
                 return nxt_param
             # When the next parameter is not related to SimpCmd, e.g. an
