@@ -131,7 +131,7 @@ class Parser:
             # No shell expansion allowed, meaning it was escaped, like "\~"
             # If first parameter, do not perform shell expansion, because I've
             # got no plans of adding direct calls to scripts
-            if not status or not do_shell_exp:
+            if not status or not do_shell_exp or (isinstance(param, past.Quoted) and param.quote in ("\"", "`")):
                 final.append(part)
                 continue
             if part[0] == "~":
