@@ -1,8 +1,8 @@
 import subprocess as sp
 import sys
 
-from src.utils import gen as ugen
 from src.utils import err_codes as uerr
+from src.utils import gen as ugen
 
 CMD_NM = __name__.split(".")[-1]
 
@@ -33,10 +33,16 @@ def run(data: ugen.CmdData) -> int:
     err_code = uerr.ERR_ALL_GOOD
 
     try:
-        compd_proc = sp.run(data.args, shell=True, capture_output=True, text=True)
+        compd_proc = sp.run(
+            data.args,
+            shell=True,
+            capture_output=True,
+            text=True,
+            check=False
+        )
     except UnicodeDecodeError:
         ugen.err("Cannot decode output", nm=data.cmd_nm)
-        return ERR_DECODE_ERR
+        return uerr.ERR_DECODE_ERR
     if compd_proc.returncode != 0:
         err_code = ERR_CMD_NOT_SUCCESS
 

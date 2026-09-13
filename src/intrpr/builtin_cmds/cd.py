@@ -2,9 +2,9 @@ import os
 import pathlib as pl
 import typing as ty
 
-from src.utils import gen as ugen
-from src.utils import consts as uconst
 from src.utils import err_codes as uerr
+from src.utils import gen as ugen
+
 if ty.TYPE_CHECKING:
     from src.intrpr import internals as iint
 

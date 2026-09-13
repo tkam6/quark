@@ -1,9 +1,7 @@
-import os
 import sys
-import typing as ty
 
-from src.utils import gen as ugen
 from src.utils import err_codes as uerr
+from src.utils import gen as ugen
 
 CMD_NM = __name__.split(".")[-1]
 
@@ -28,7 +26,7 @@ CMD_SPEC = ugen.CmdSpec(
 )
 
 
-def run(data: ugen.CmdData) -> ty.NoReturn | int:
+def run(data: ugen.CmdData) -> int:
     exit_code = uerr.ERR_ALL_GOOD
     exit_txt = not ("-T" in data.flags or "--no-exit-text" in data.flags)
 
@@ -40,7 +38,7 @@ def run(data: ugen.CmdData) -> ty.NoReturn | int:
             ugen.err(f"Cannot cast to int: '{exit_code}'", nm=data.cmd_nm)
             return uerr.ERR_CANT_CAST_VAL
         except OverflowError:
-            ugen.err(f"Integer overflow", nm=data.cmd_nm)
+            ugen.err("Integer overflow", nm=data.cmd_nm)
             return uerr.ERR_INT_OVERFLOW
 
     if exit_txt:

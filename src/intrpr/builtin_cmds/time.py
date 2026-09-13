@@ -1,8 +1,7 @@
 import time
-import typing as ty
 
-from src.utils import gen as ugen
 from src.utils import err_codes as uerr
+from src.utils import gen as ugen
 
 CMD_NM = __name__.split(".")[-1]
 
@@ -39,7 +38,7 @@ EXPO_UNIT_MAP = {
 }
 
 
-def run(data: ugen.CmdData) -> ty.NoReturn | int:
+def run(data: ugen.CmdData) -> int:
     err_code = uerr.ERR_ALL_GOOD
     expo = 3
 
@@ -54,7 +53,7 @@ def run(data: ugen.CmdData) -> ty.NoReturn | int:
                  )
                 return uerr.ERR_CANT_CAST_VAL
             expo = int(val)
-            if expo not in range(0, 10):
+            if expo not in range(10):
                 ugen.err(
                     f"Exponent value outside range: {val} [0 <= expo <= 9]",
                     nm=data.cmd_nm

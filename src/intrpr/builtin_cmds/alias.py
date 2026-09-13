@@ -58,7 +58,6 @@ def run(data: ugen.CmdData) -> int:
     to_write: list[tuple[str, str]]
 
     err_code = uerr.ERR_ALL_GOOD
-    set_alias = False
     to_write = []
     max_len = 0
     try:
@@ -110,7 +109,6 @@ def run(data: ugen.CmdData) -> int:
                 )
 
     elif data.sub_cmd == "get":
-        len_max_arg = 0
         for arg in data.args:
             if arg not in alias_dict:
                 to_write.append(Err(f"No such alias: '{arg}'"))

@@ -9,10 +9,10 @@ import traceback as tb
 import types
 import typing as ty
 
-from src.utils import consts as uconst
-from src.utils import gen as ugen
-from src.utils import err_codes as uerr
 from src.intrpr import internals as iint
+from src.utils import consts as uconst
+from src.utils import err_codes as uerr
+from src.utils import gen as ugen
 
 
 class CmdReslvr:
@@ -194,9 +194,9 @@ class CmdReslvr:
             return uerr.ERR_NO_HELP_OBJ
 
         # Get help object, command spec and function and validate
-        cmd_fn = getattr(cmd_mod, "run")
-        cmd_spec = getattr(cmd_mod, "CMD_SPEC")
-        help_obj = getattr(cmd_mod, "HELP")
+        cmd_fn = cmd_mod.run
+        cmd_spec = cmd_mod.CMD_SPEC
+        help_obj = cmd_mod.HELP
         is_fn_callable = callable(cmd_fn)
         is_num_fn_params_ok = (is_fn_callable
                                and cmd_fn.__code__.co_argcount == 1)
@@ -226,9 +226,9 @@ class CmdReslvr:
 
             cmd_nm = mod_fl.name
             mod = il.import_module(f"intrpr.builtin_cmds.{cmd_nm}")
-            help_obj = getattr(mod, "HELP")
-            cmd_spec = getattr(mod, "CMD_SPEC")
-            cmd_fn = getattr(mod, "run")
+            help_obj = mod.HELP
+            cmd_spec = mod.CMD_SPEC
+            cmd_fn = mod.run
 
             self.builtin_cmds[cmd_nm] = (cmd_fn, cmd_spec, help_obj)
             builtins_lded.append(cmd_nm)
@@ -263,7 +263,7 @@ class CmdReslvr:
         # validate_res = self.validate_cmd_mod(cmd_mod)
         # if validate_res != uerr.ERR_ALL_GOOD:
         #     return validate_res
-        help_obj = getattr(cmd_mod, "HELP")
+        help_obj = cmd_mod.HELP
         return help_obj
 
     def get_builtin_cmd(self, cmd: str) -> \
@@ -288,6 +288,6 @@ class CmdReslvr:
         # validate_res = self.validate_cmd_mod(cmd_mod)
         # if validate_res != uerr.ERR_ALL_GOOD:
         #     return validate_res
-        cmd_spec = getattr(cmd_mod, "CMD_SPEC")
-        cmd_fn = getattr(cmd_mod, "run")
+        cmd_spec = cmd_mod.CMD_SPEC
+        cmd_fn = cmd_mod.run
         return (cmd_fn, cmd_spec)

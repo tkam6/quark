@@ -6,7 +6,6 @@ import multiprocessing as mp
 import multiprocessing.shared_memory as mpshm
 import os
 import os.path as ospth
-import pathlib as pl
 import pickle as pi
 import platform as pf
 import pwd
@@ -22,12 +21,13 @@ import typing as ty
 from src.intrpr import cfg_mgr as cmgr
 from src.intrpr import cmd_reslvr as icrsr
 from src.intrpr import internals as iint
-from src.parser import eng as peng
 from src.parser import ast_nodes as past
-from src.utils import gen as ugen
+from src.parser import eng as peng
 from src.utils import consts as uconst
 from src.utils import debug as udeb
 from src.utils import err_codes as uerr
+from src.utils import gen as ugen
+
 if ty.TYPE_CHECKING:
     from src.parser import internals as pint
 
@@ -684,8 +684,7 @@ class Intrpr:
                     )
                     err_code = uerr.ERR_TOO_MANY_OPEN_FLS
                     return iint.CmdCompdObj(err_code=err_code)
-                else:
-                    raise e
+                raise e
             # Child process; run in forked process
             if pid == 0:
                 os.close(rout)

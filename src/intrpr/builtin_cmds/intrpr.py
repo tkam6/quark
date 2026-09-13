@@ -1,10 +1,9 @@
 import builtins
-import os
 import typing as ty
 
-from src.utils import gen as ugen
-from src.utils import consts as uconst
 from src.utils import err_codes as uerr
+from src.utils import gen as ugen
+
 if ty.TYPE_CHECKING:
     from src.intrpr import internals as iint
 
@@ -82,7 +81,6 @@ def set_vars_helper(
         for nm, obj in vars(builtins).items():
             if nm == var_typ:
                 var_obj = obj
-                found = True
                 break
         else:
             ugen.err(f"No such type in scope: '{var_typ}'", nm=cmd_nm)

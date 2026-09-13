@@ -3,6 +3,7 @@ import typing as ty
 
 from src.utils import consts as uconst
 from src.utils import gen as ugen
+
 if ty.TYPE_CHECKING:
     from src.intrpr import internals as iint
 

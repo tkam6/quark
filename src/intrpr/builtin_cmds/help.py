@@ -39,14 +39,14 @@ CMD_SPEC = ugen.CmdSpec(
 
 ERR_NO_SUCH_CMD = 1000
 ERR_MSG_MAP = {
-    uerr.ERR_BAD_CMD: f"No such command",
-    uerr.ERR_NO_HELP_OBJ: f"No help object",
-    uerr.ERR_INV_HELP_OBJ: f"Invalid help object",
+    uerr.ERR_BAD_CMD: "No such command",
+    uerr.ERR_NO_HELP_OBJ: "No help object",
+    uerr.ERR_INV_HELP_OBJ: "Invalid help object",
     uerr.ERR_NO_CMD_FN: "No command function",
     uerr.ERR_INV_NUM_PARAMS: "Invalid command function",
     uerr.ERR_NO_CMD_SPEC: "No command spec",
     uerr.ERR_INV_CMD_SPEC: "Invalid command spec",
-    uerr.ERR_CANT_LD_CMD_MOD: f"Could not load command module",
+    uerr.ERR_CANT_LD_CMD_MOD: "Could not load command module",
     uerr.ERR_CMD_SYN_ERR: "Syntax error in command module",
 }
 
