@@ -1,7 +1,6 @@
 import atexit
 import errno
 import io
-import logging as lg
 import multiprocessing as mp
 import multiprocessing.shared_memory as mpshm
 import os
@@ -507,20 +506,7 @@ class Intrpr:
         while total < len_data:
             total += os.write(fd, data[total :])
 
-    def loop_set_lgr_streams(
-        self,
-        chk_if: io.TextIOBase,
-        set_to: io.TextIOBase
-    ) -> None:
-        for lgr in lg.Logger.manager.loggerDict.values():
-            lgr: lg.Logger
-            if isinstance(lgr, lg.PlaceHolder):
-                continue
-            for hdlr in lgr.handlers:
-                if hdlr.stream is chk_if:
-                    hdlr.stream = set_to
-
-    def cmd_resln(self, cmd_nm: str) -> iint.CmdReslnRes | None | int:
+    def cmd_resln(self, cmd_nm: str) -> iint.CmdReslnRes | int | None:
         # DEBUG: Command resolution time start
         _t_cmd_resln = time.perf_counter_ns()
 
@@ -570,8 +556,8 @@ class Intrpr:
         stdout_obj: io.TextIOBase,
         stderr_obj: io.TextIOBase,
     ) -> ty.NoReturn:
-        os.dup2(wout, 1)  # Redirect STDOUT to write end of pipe wout
-        os.dup2(werr, 2)  # Redirect STDERR to write end of pipe werr
+        os.dup2(wout, 1)        # Redirect STDOUT to write end of pipe wout
+        os.dup2(werr, 2)        # Redirect STDERR to write end of pipe werr
         os.close(wout)
         os.close(werr)
         excep = None
@@ -597,8 +583,7 @@ class Intrpr:
             cmd_ret = uerr.ERR_RET_INT_TOO_LARGE
         # Pass data:
         # 1. Command return code
-        # 2. If any exceptions were raised
-        # Case: If any exceptions were raised:
+        # 2. If any exceptions were raised:
         #       3. Length of the traceback string
         #       4. The traceback string
         os.write(wother, st.pack("!i", cmd_ret))
@@ -684,7 +669,7 @@ class Intrpr:
                     )
                     err_code = uerr.ERR_TOO_MANY_OPEN_FLS
                     return iint.CmdCompdObj(err_code=err_code)
-                raise e
+                raise
             # Child process; run in forked process
             if pid == 0:
                 os.close(rout)
@@ -752,7 +737,7 @@ class Intrpr:
                     err_code = err_code or ret_code
                 except KeyboardInterrupt as e:
                     if pid == 0:
-                        raise e
+                        raise
                     elif pid > 0:
                         raise ugen.KeyboardInterruptWPrevileges(e, pid)
 
@@ -866,7 +851,7 @@ class Intrpr:
                 params_cp = list(params)
                 for i, param in enumerate(params_cp):
                     if isinstance(param, past.Quoted):
-                        params_cp[i] = quote + param.val + quote
+                        params_cp[i] = param.quote + param.val + param.quote
                         continue
                     params_cp[i] = param.val
                 # If a string is returned, it means command is an alias

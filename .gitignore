@@ -7,10 +7,11 @@
 # Project root
 build/
 misc/
+nuitka-crash-report.xml
 old_vers/
+push.sh
 releases/
 tmp/
-nuitka-crash-report.xml
 .venv/
 
 # Tests

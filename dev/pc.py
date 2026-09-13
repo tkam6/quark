@@ -187,8 +187,8 @@ def fatal(*msg: str, ret: int) -> ty.NoReturn:
 
 def read_toml_file(filepath: str) -> dict[str, ty.Any]:
     try:
-        contents =  tl.load(f := open(filepath, "rb"))
-        f.close()
+        with open(filepath, "rb") as f:
+            contents =  tl.load(f)
         return contents
     except FileNotFoundError:
         pass

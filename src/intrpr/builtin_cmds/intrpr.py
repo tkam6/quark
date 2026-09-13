@@ -14,7 +14,7 @@ HELP = ugen.HelpObj(
         f"{CMD_NM} list\n"
         f"{CMD_NM} get name [...]\n"
         f"{CMD_NM} set name value [type]\n"
-        f"{CMD_NM} remove name [...]\n"
+        f"{CMD_NM} rm name [...]\n"
     ),
     summary="Manage interpreter variables",
     details=(
@@ -23,7 +23,7 @@ HELP = ugen.HelpObj(
         ("list", "List all variables"),
         ("get", "Get variables by name"),
         ("set", "Set variables"),
-        ("remove", "Remove variables"),
+        ("rm", "Remove variables"),
         "ARGUMENTS",
         ("name", "Variable name"),
         ("value", "Variable value"),
@@ -44,7 +44,7 @@ CMD_SPEC = ugen.CmdSpec(
         "set"   : (2, 3),
         "get"   : (1, float("inf")),
         "list"  : (0, 0),
-        "remove": (1, float("inf"))
+        "rm": (1, float("inf"))
     },
     opts=(),
     flags=("-r", "--repr")
@@ -73,7 +73,7 @@ def set_vars_helper(
         if var_val != "None":
             ugen.err(
                 f"Invalid value for '{var_typ}': '{var_val}'",
-                nm=cmd_nm
+                nm=cmd_nm,
             )
         var_val = None
     # 3rd argument passed; type was specified
@@ -90,7 +90,7 @@ def set_vars_helper(
         except ValueError:
             ugen.err(
                 f"Illegal value for type '{var_typ}': '{var_val}'",
-                nm=cmd_nm
+                nm=cmd_nm,
             )
             return ERR_INV_VAL_FOR_TYP
 
@@ -100,7 +100,7 @@ def set_vars_helper(
         err_code = uerr.ERR_ENV_VAR_INV_TYP
         ugen.err(
             f"Invalid type for '{var_nm}': '{var_val.__class__.__name__}'",
-            nm=cmd_nm
+            nm=cmd_nm,
         )
     except ugen.InvVarNmErr:
         err_code = uerr.ERR_ENV_VAR_INV_NM
@@ -164,7 +164,7 @@ def run(data: ugen.CmdData) -> int:
         )
         err_code = err_code or tmp_err_code
 
-    elif data.sub_cmd == "remove":
+    elif data.sub_cmd == "rm":
         for arg in data.args:
             if arg not in data.intrpr_vars:
                 ugen.err(f"No such variable: '{arg}'", nm=data.cmd_nm)
@@ -175,7 +175,7 @@ def run(data: ugen.CmdData) -> int:
             except ugen.InvAccess:
                 ugen.err(
                     f"Cannot remove protected variable: {arg}",
-                    nm=data.cmd_nm
+                    nm=data.cmd_nm,
                 )
 
     return err_code

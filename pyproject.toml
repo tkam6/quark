@@ -17,6 +17,9 @@ line-length = 79
 indent-width = 4
 target-version = "py313"
 
+[tool.ruff.lint]
+ignore = ["BLE001"]
+
 [tool.ruff.format]
 quote-style = "double"
 indent-style = "space"

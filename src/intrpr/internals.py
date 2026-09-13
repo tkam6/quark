@@ -1,25 +1,20 @@
-# TODO: tmp; remove
-import pdb
-
 import collections.abc as cabc
 import copy
-import ctypes as ct
 import dataclasses as dcs
 import functools
 import importlib.machinery as ilm
+import string
 import struct as st
-import threading as th
 import traceback as tb
-import typing as ty
 import types
+import typing as ty
+
 if ty.TYPE_CHECKING:
     import multiprocessing.shared_memory as mpshm
     import multiprocessing.synchronize as mpsync
 
 from src.utils import err_codes as uerr
 from src.utils import gen as ugen
-if ty.TYPE_CHECKING:
-    from src.intrpr import cmd_reslvr as icrsr
 
 
 # To not lose the traceback string (yes, string) during the pickling process;
@@ -73,7 +68,7 @@ class Snoo:
             )
         )
 
-    def run(self, data: ugen.CmdData) -> int | ty.NoReturn:
+    def run(self, data: ugen.CmdData) -> int:
         crash = True
         for flag in data.flags:
             if flag in ("-C", "--no-crash"):
@@ -85,11 +80,9 @@ class Snoo:
             return uerr.ERR_BEAUTY_OVERLD
 
 
-def catch_exceps_env_tbl(
-        f: ty.Callable[..., ty.Any]
-        ) -> ty.Callable[..., ty.Any] | ty.NoReturn:
+def catch_exceps_env_tbl(f: ty.Callable[..., ty.Any]) -> ty.Callable[..., ty.Any]:
     @functools.wraps(f)
-    def fn(*args, **kwargs) -> ty.Any | ty.NoReturn:
+    def fn(*args, **kwargs) -> ty.Any:
         try:
             return f(*args, **kwargs)
         except st.error:
@@ -165,7 +158,7 @@ class EnvTbl:
     def __len__(self) -> int:
         return self._rd_u64(self.CNT_START, self.CNT_START + self.CNT_SZ)
 
-    def __iter__(self) -> ty.Iterable[tuple[str, str]]:
+    def __iter__(self) -> ty.Iterator[tuple[str, str]]:
         for i in range(self.MAX_ITEMS):
             if not self._chk_key_occupancy(i):
                 continue
@@ -178,10 +171,10 @@ class EnvTbl:
         except ugen.UnkVarErr:
             return False
 
-    def __getitem__(self, key: str) -> ty.Any | ty.NoReturn:
+    def __getitem__(self, key: str) -> ty.Any:
         return self.get(key)
 
-    def __setitem__(self, key: str, val: str) -> None | ty.NoReturn:
+    def __setitem__(self, key: str, val: str) -> None:
         return self.set(key, val)
 
     def __repr__(self) -> str:
@@ -230,7 +223,7 @@ class EnvTbl:
             self.buf[start : end] = data.encode()
 
     @catch_exceps_env_tbl
-    def set(self, key: str, val: str) -> None | ty.NoReturn:
+    def set(self, key: str, val: str) -> None:
         # Validate key and val are strings
         if not isinstance(key, str):
             raise ugen.InvVarNmErr(var_nm=key)
@@ -261,13 +254,13 @@ class EnvTbl:
                 if not self._chk_key_occupancy(i):
                     continue
 
-                cur_key, cur_val = self.get_by_idx(i)
+                cur_key, _ = self.get_by_idx(i)
                 if cur_key != key:
                     continue
                 arr_val_len_entry_idx = self.ARR_VAL_LEN_START + self.VAL_LEN_SZ * i
                 arr_val_entry_idx = self.ARR_VALS_START + self.VAL_ENTRY_SZ * i
                 self._wrt_u64(len_encoded_val, arr_val_len_entry_idx, arr_val_len_entry_idx + self.VAL_LEN_SZ)
-                self._wrt_str(val, arr_val_entry_idx, arr_val_entry_idx + len_encoded_val)
+                self._wrt_str(encoded_val, arr_val_entry_idx, arr_val_entry_idx + len_encoded_val)
                 return
 
             # If the key doesn't already exist, then create a new one
@@ -282,14 +275,14 @@ class EnvTbl:
                 arr_val_entry_idx = self.ARR_VALS_START + self.VAL_ENTRY_SZ * i
                 self._wrt_u64(len_encoded_key, arr_key_len_entry_idx, arr_key_len_entry_idx + self.KEY_LEN_SZ)
                 self._wrt_u64(len_encoded_val, arr_val_len_entry_idx, arr_val_len_entry_idx + self.VAL_LEN_SZ)
-                self._wrt_str(key, arr_key_entry_idx, arr_key_entry_idx + len_encoded_key)
-                self._wrt_str(val, arr_val_entry_idx, arr_val_entry_idx + len_encoded_val)
+                self._wrt_str(encoded_key, arr_key_entry_idx, arr_key_entry_idx + len_encoded_key)
+                self._wrt_str(encoded_val, arr_val_entry_idx, arr_val_entry_idx + len_encoded_val)
                 self._wrt_u64(len(self) + 1, self.CNT_START, self.CNT_START + self.CNT_SZ)
                 return
 
         raise ugen.HowDidWeGetHere()
 
-    def get(self, key: str) -> str | ty.NoReturn:
+    def get(self, key: str) -> str:
         cur_val = None
         for i in range(self.MAX_ITEMS):
             arr_key_len_entry_idx = self.ARR_KEY_LEN_START + self.KEY_LEN_SZ * i
@@ -301,7 +294,7 @@ class EnvTbl:
                 return cur_val
         raise ugen.UnkVarErr(var_nm=key)
 
-    def get_by_idx(self, idx: int) -> tuple[str, str] | ty.NoReturn:
+    def get_by_idx(self, idx: int) -> tuple[str, str]:
         if idx > self.MAX_ITEMS - 1:
             raise IndexError()
 
@@ -343,24 +336,23 @@ class IntrprTbl:
     def __len__(self) -> int:
         return len(self.intrpr_tbl)
 
-    def __iter__(self) -> ty.NoReturn:
+    def __iter__(self) -> ty.Iterator[str]:
         yield from self.intrpr_tbl
 
     def __contains__(self, key: ty.Any) -> bool:
         return key in self.intrpr_tbl
 
-    def __getitem__(self, key: str) -> ty.Any | ty.NoReturn:
+    def __getitem__(self, key: str) -> ty.Any:
         if key not in self.intrpr_tbl:
-            raise ugen.UnkVarErr(var_nm=key)
+            raise ugen.UnkVarErr(None, var_nm=key)
         return self.get(key)
 
-    def __setitem__(self, key: str, val: ty.Any) -> None | ty.NoReturn:
-        if key not in self.intrpr_tbl:
-            if (
-                key.lower().strip("_abcdefghijklmnopqrstuvwxyz0123456789")
-                or key.startswith("0123456789")
-            ):
-                raise ugen.InvVarNmErr(var_nm=key)
+    def __setitem__(self, key: str, val: ty.Any) -> None:
+        if key not in self.intrpr_tbl and (
+            key.strip(string.ascii_letters + "_")
+            or key.startswith(string.digits)
+        ):
+            raise ugen.InvVarNmErr(var_nm=key)
         self.set(key, val)
 
     def __repr__(self) -> str:
@@ -371,14 +363,14 @@ class IntrprTbl:
         nm: str,
         val: ty.Any,
         protected: bool = False
-    ) -> None | ty.NoReturn:
+    ) -> None:
         self.protection_status[nm] = protected
         self.intrpr_tbl[nm] = val
 
-    def get(self, nm: str) -> ty.Any | ty.NoReturn:
+    def get(self, nm: str) -> ty.Any:
         return self.intrpr_tbl[nm]
 
-    def pop(self, nm: str) -> ty.Any | ty.NoReturn:
+    def pop(self, nm: str) -> ty.Any:
         try:
             # If protected, raise InvAccess
             if self.protection_status[nm]:

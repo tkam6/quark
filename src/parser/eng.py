@@ -95,21 +95,17 @@ class Parser:
         ln: str,
         usr_dir: str,
         pth: str,
-        do_shell_exp: bool,
         start: int,
-    ) -> past.Tok | past.Op | None | int:
+    ) -> past.Tok | past.Op | int | None:
         param: past.Param | past.Op | int | None
 
         # Encountered whitespace
         idx = start
         idx = self._skip_ws(ln, len(ln), idx)
-        shell_exp = True
 
         if ln[idx] in pint.QUOTES:
             param = self._get_quoted_tok(ln, idx, ln[idx])
-        elif ln[idx] in (*pint.LOGI_OPS, *pint.DATA_OPS):
-            return None
-        elif ln[idx] in pint.CMD_SEPRS:
+        elif ln[idx] in (*pint.LOGI_OPS, *pint.DATA_OPS, *pint.CMD_SEPRS):
             return None
         else:
             param = self._get_unquoted_tok(ln, idx)
@@ -130,7 +126,7 @@ class Parser:
             # No shell expansion allowed, meaning it was escaped, like "\~"
             # If first parameter, do not perform shell expansion, because I've
             # got no plans of adding direct calls to scripts
-            if not status or not do_shell_exp or (isinstance(param, past.Quoted) and param.quote in ("\"", "`")):
+            if not status or (isinstance(param, past.Quoted) and param.quote in ("\"", "`")):
                 final.append(part)
                 continue
             ugen.info(repr(part))
@@ -217,7 +213,7 @@ class Parser:
         idx = self._skip_ws(ln, ln_len, idx)
         params = []
         while idx < ln_len:
-            nxt_param = self._get_nxt_param(ln, usr_dir, pth, do_shell_exp=idx != 0, start=idx)
+            nxt_param = self._get_nxt_param(ln, usr_dir, pth, start=idx)
             if isinstance(nxt_param, int):
                 return nxt_param
             # When the next parameter is not related to SimpCmd, e.g. an
