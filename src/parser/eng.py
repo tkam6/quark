@@ -124,7 +124,6 @@ class Parser:
             return escd_param
 
         parts, param = escd_param
-        param_len = len(param)
 
         final = []
         for part, status in parts:
@@ -134,6 +133,7 @@ class Parser:
             if not status or not do_shell_exp or (isinstance(param, past.Quoted) and param.quote in ("\"", "`")):
                 final.append(part)
                 continue
+            ugen.info(repr(part))
             if part[0] == "~":
                 final.append(usr_dir + part[1 :])
                 continue
@@ -170,12 +170,6 @@ class Parser:
 
             esc_chr_chk_res = pint.ESC_CHR_MAP.get("\\" + param.val[i + 1])
             dir_exp_chr_chk_res = pint.DIR_EXP_CHRS.get("\\" + param.val[i + 1])
-            # If 2nd character is not in the escape character dict AND the 2nd
-            # character is not one of the globbing characters, append it as it
-            # is to the array, because, for example, we shouldn't change \*.
-            # Later comment: I think the statement below is pure nonsense
-            # if tmp is None and param.val[i + 1] not in pint.GLOB_CHS:
-
             # Basic explanation:
             # Check if next char is in escape char map.
             # Check if next char is in shell expansion map.
@@ -185,7 +179,10 @@ class Parser:
             if esc_chr_chk_res is None and dir_exp_chr_chk_res is None:
                 cur_part.append(param.val[i + 1])
             elif esc_chr_chk_res is None:
-                parts.append(("".join(cur_part), True))
+                # Don't append if cur_parts join to form just an empty string
+                # Occurs in case of escaped expansion char at the start, or two
+                # expansion chars next to each other
+                parts.append(("".join(cur_part), True)) if "".join(cur_part) else None
                 parts.append((param.val[i + 1], False))
                 cur_part = []
             else:
