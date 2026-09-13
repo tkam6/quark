@@ -11,3 +11,12 @@ license = "Apache-2.0"
 
 [tool.setuptools]
 packages = ["src"]
+
+[tool.ruff]
+line-length = 79
+indent-width = 4
+target-version = "py313"
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"

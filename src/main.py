@@ -4,14 +4,13 @@ import os
 import signal as sig
 import sys
 import traceback as tb
-import typing as ty
 
 from src.intrpr import cfg_mgr as cmgr
 from src.intrpr import eng as ieng
+from src.logger import eng as leng
 from src.utils import consts as uconst
 from src.utils import err_codes as uerr
 from src.utils import gen as ugen
-from src.logger import eng as leng
 
 if not sys.argv:
     called_nm = "[main]"
@@ -39,7 +38,7 @@ FLAGS = {
 
 # TODO: Update the help string
 HELP_TXT = (
-    "USAGE"
+    "USAGE",
     f"\t{called_nm} [flag ...] [opt] [fl]",
     "ARGUMENTS",
     "\tfl          Script to run",
