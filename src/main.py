@@ -16,10 +16,11 @@ if not sys.argv:
     called_nm = "[main]"
 else:
     called_nm = sys.argv[0]
-    # Nuitka overwrites sys.argv[0]
+    # Nuitka overwrites sys.argv[0], and provides __compiled__ with original argv
     if "__compiled__" in locals():
-        called_nm = __compiled__.original_argv0
+        called_nm = __compiled__.original_argv0         # noqa: F821
 
+VER = uconst.VER
 MIN_ARGS = 0
 MAX_ARGS = 1
 OPTS = {

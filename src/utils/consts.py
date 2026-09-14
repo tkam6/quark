@@ -3,6 +3,7 @@ import sys
 import typing as ty
 
 from src.parser import internals as pint
+
 if ty.TYPE_CHECKING:
     from src.intrpr import internals as iint
 
@@ -57,10 +58,8 @@ cwd = f"{ANSI_GREEN_4}!P{ANSI_RESET}"
 
 
 class Defaults:
-    ALIASES: dict[str, str]
-
     PTH = (USR_PY_PTH, *SYS_PY_PTHS, PY_PTH)
-    ALIASES = {}
+    ALIASES = ty.ClassVar({})
     LN_MODE = "emacs"
 
     @staticmethod
@@ -73,4 +72,4 @@ class Defaults:
 
 
 class ValidVals:
-    LN_MODE = {"emacs", "vi", "raw"}
+    LN_MODE = ty.ClassVar({"emacs", "vi", "raw"})

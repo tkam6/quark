@@ -84,7 +84,7 @@ else:
     PROG = sys.argv[0]
     # Nuitka overwrites sys.argv[0]
     if "__compiled__" in locals():
-        PROG = __compiled__.original_argv0
+        PROG = __compiled__.original_argv0         # noqa: F821
 USER_DIR = pwd.getpwuid(os.getuid()).pw_dir
 
 

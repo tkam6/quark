@@ -10,7 +10,7 @@ import typing as ty
 
 from src.parser import internals as pint
 from src.utils import consts as uconst
-from src.logger import eng as leng
+
 if ty.TYPE_CHECKING:
     from src.intrpr import cmd_reslvr as icrsr
     from src.intrpr import eng as ieng
@@ -137,7 +137,7 @@ class CmdData(ty.NamedTuple):
     term_sz: os.terminal_size | None
     is_tty: bool
     stdin: str | None
-    exec_fn: "ty.Callable[[ieng.Intrpr, str], int | ty.NoReturn]"
+    exec_fn: "ty.Callable[[ieng.Intrpr, str], int]"
 
 class CmdSpec(ty.NamedTuple):
     min_args: int
@@ -145,7 +145,8 @@ class CmdSpec(ty.NamedTuple):
     opts: tuple[str, ...]
     flags: tuple[str, ...]
     parse_sub_cmds: bool = False
-    sub_cmds: dict[str | None, tuple[int, int | float]] = {}
+    sub_cmds: dict[str | None, tuple[int, int | float]] = ty.ClassVar({})
+
 
 class HelpObj(ty.NamedTuple):
     usage: str
