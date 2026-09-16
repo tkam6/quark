@@ -8,22 +8,22 @@ from src.utils import gen as ugen
 OPTS = {
     "FIELDS": ("-f", "--fields"),
     "REPEAT_CHRS": ("-r", "--repeat-chars"),
-    "SEP_CHRS": ("-s", "--chars"),
+    "SEP-CHRS": ("-s", "--chars"),
 }
 FLAGS = {
-    "EXACT"        : ("-e", "--exact"),
-    "LONG"         : ("-l", "--long"),
-    "NO_HEADERS"   : ("-H", "--no-headers"),
-    "FILTER_BY_PID": ("-p", "--by-pid"),
+    "EXACT": ("-e", "--exact"),
+    "LONG": ("-l", "--long"),
+    "NO-HEADERS": ("-H", "--no-headers"),
+    "FILTER-BY-PID": ("-p", "--by-pid"),
 }
 
 VALID_FIELDS = {
-    "pid"      : "Process PID",
-    "ppid"     : "Parent PID",
-    "name"     : "Process name",
-    "threads"  : "Threads used by process",
+    "pid": "Process PID",
+    "ppid": "Parent PID",
+    "name": "Process name",
+    "threads": "Threads used by process",
     "starttime": "Start time of process",
-    "full"     : "Full invokation",
+    "full": "Full invokation",
 }
 CMD_NM = __name__.split(".")[-1]
 
@@ -130,7 +130,7 @@ def run(data: ugen.CmdData) -> int:
     repeat_num = 2
 
     for flag in data.flags:
-        if flag in FLAGS["NO_HEADERS"]:
+        if flag in FLAGS["NO-HEADERS"]:
             wrt_headers = False
         elif flag in FLAGS["LONG"]:
             fields = ["pid", "full"]
@@ -144,13 +144,13 @@ def run(data: ugen.CmdData) -> int:
             fields = list(dict.fromkeys(val.split(",")))
             if inv := [i for i in fields if i not in VALID_FIELDS]:
                 ugen.err(
-                    f"Invalid value(s) for fields: "
+                    "Invalid value(s) for fields: "
                     + ", ".join(("'" + ugen.esc_chrs_all(i) + "'") for i in inv)
                 )
                 return uerr.ERR_INV_VAL_OPT
         elif opt in OPTS["SEP_CHRS"]:
             sep_chrs = val
-        elif opt in OPTS["REPEAT_CHRS"]:
+        elif opt in OPTS["REPEAT-CHARS"]:
             try:
                 repeat_num = int(val)
             except ValueError:

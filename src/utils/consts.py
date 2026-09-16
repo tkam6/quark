@@ -1,3 +1,4 @@
+import dataclasses as dcs
 import os
 import sys
 import typing as ty
@@ -59,7 +60,7 @@ cwd = f"{ANSI_GREEN_4}!P{ANSI_RESET}"
 
 class Defaults:
     PTH = (USR_PY_PTH, *SYS_PY_PTHS, PY_PTH)
-    ALIASES = ty.ClassVar({})
+    ALIASES = dcs.field(default_factory=dict)
     LN_MODE = "emacs"
 
     @staticmethod
@@ -72,4 +73,4 @@ class Defaults:
 
 
 class ValidVals:
-    LN_MODE = ty.ClassVar({"emacs", "vi", "raw"})
+    LN_MODE = dcs.field(default_factory=lambda: {"emacs", "vi", "raw"})

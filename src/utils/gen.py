@@ -1,4 +1,5 @@
 import atexit
+import dataclasses as dcs
 import os
 import re
 import select
@@ -145,7 +146,7 @@ class CmdSpec(ty.NamedTuple):
     opts: tuple[str, ...]
     flags: tuple[str, ...]
     parse_sub_cmds: bool = False
-    sub_cmds: dict[str | None, tuple[int, int | float]] = ty.ClassVar({})
+    sub_cmds: dict[str | None, tuple[int, int | float]] = dcs.field(default_factory=dict)
 
 
 class HelpObj(ty.NamedTuple):

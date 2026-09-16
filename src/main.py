@@ -13,34 +13,34 @@ from src.utils import err_codes as uerr
 from src.utils import gen as ugen
 
 if not sys.argv:
-    called_nm = "[main]"
-else:
-    called_nm = sys.argv[0]
-    # Nuitka overwrites sys.argv[0], and provides __compiled__ with original argv
-    if "__compiled__" in locals():
-        called_nm = __compiled__.original_argv0         # noqa: F821
+    # PROG = "[main]"
+    ugen.fatal("What kind of sorcery is this? Why is the program run this way? (sys.argv is empty)")
+PROG = sys.argv[0]
+# Nuitka overwrites sys.argv[0], and provides __compiled__ with original argv
+if "__compiled__" in locals():
+    PROG = __compiled__.original_argv0         # noqa: F821
 
 VER = uconst.VER
 MIN_ARGS = 0
 MAX_ARGS = 1
 OPTS = {
-    "-l", "--line-mode",
-    "-t", "--debug-time-unit",
+    "DEBUG-TIME-UNIT": ("-t", "--debug-time-unit"),
+    "LINE-MODE": ("-l", "--line-mode"),
 }
 FLAGS = {
-    "-d", "--debug",
-    "-e", "--preserve-stderr-ANSI",
-    "-h", "--help",
-    "-i", "--info",
-    "-o", "--preserve-stdout-ANSI",
-    "-p", "--preload-external",
-    "-W", "--no-warnings",
+    "DEBUG": ("-d", "--debug"),
+    "HELP": ("-h", "--help"),
+    "INFO": ("-i", "--info"),
+    "LOAD-EXTERNAL": ("-p", "--preload-external"),
+    "NO-WARNINGS": ("-W", "--no-warnings"),
+    "STDERR-ANSI": ("-e", "--preserve-stderr-ANSI"),
+    "STDOUT-ANSI": ("-o", "--preserve-stdout-ANSI"),
 }
 
 # TODO: Update the help string
 HELP_TXT = (
     "USAGE",
-    f"\t{called_nm} [flag ...] [opt] [fl]",
+    f"\t{PROG} [flag ...] [opt val ...] [file]",
     "ARGUMENTS",
     "\tfl          Script to run",
     "OPTIONS",
@@ -53,15 +53,14 @@ HELP_TXT = (
     "FLAGS",
     "\t-d, --debug",
     "\t            Show debug messages",
-    "\t-e, --load-external",
-    "\t            Load all external commands on startup",
+    "\t-e, --preserve-ANSI-stderr",
+    "\t            Preserve ANSI codes in STDERR redirects",
     "\t-h, --help  Display help text",
     "\t-i, --info  Show info messages",
-    "\t-l, ",
-    "\t-pe, --preserve-ANSI-stderr",
-    "\t            Preserve ANSI codes in STDERR redirects",
-    "\t-po, --preserve-ANSI-stdout",
+    "\t-o, --preserve-ANSI-stdout",
     "\t            Preserve ANSI codes in STDOUT redirects",
+    "\t-p, --load-external",
+    "\t            Load all external commands on startup",
     "\t-W, --no-warnings",
     "\t            Suppress warnings",
 )
@@ -83,37 +82,44 @@ def parse_argv(cfg: MainProgParsed, passed_params: list[str]) -> MainProgParsed:
     parse_opts_flags = True
     args = []
     idx = 0
+    all_flags = tuple(flag for flags in FLAGS.values() for flag in flags)
+    all_flags_opts = (
+        *all_flags,
+        *(opt for opts in OPTS.values() for opt in opts),
+    )
 
     while idx < len(params):
         param = params[idx]
-        if not (param.startswith("-") and parse_opts_flags):
+        if not param.startswith("-") or not parse_opts_flags:
             args.append(param)
+            idx += 1
             continue
         if param == "--":
             parse_opts_flags = False
+            idx += 1
             continue
-        if param not in (*FLAGS, *OPTS):
-            if [i for i in param[1 :] if f"-{i}" not in FLAGS]:
-                ugen.err_Q(f"Unknown parameter: '{param}'")
+        if param not in all_flags_opts:
+            if [i for i in param[1 :] if f"-{i}" not in all_flags]:
+                ugen.fatal_Q(f"Unknown parameter: '{param}'")
                 sys.exit(uerr.ERR_MP_UNK_TOK)
             params[idx : idx + 1] = list(param[1 :])
             continue
 
         # Flags
-        if param in ("-d", "--debug"):
+        if param in FLAGS["DEBUG"]:
             cfg.log_lvl = leng.LogLvls.DEBUG
-        elif param in ("-e", "--load-external"):
+        elif param in FLAGS["LOAD-EXTERNAL"]:
             cfg.pre_ld_ext_cmds = True
-        elif param in ("-o", "--preserve-ANSI-stdout"):
+        elif param in FLAGS["STDOUT-ANSI"]:
             cfg.stdout_ansi = True
-        elif param in ("-e", "--preserve-ANSI-stderr"):
+        elif param in FLAGS["STDERR-ANSI"]:
             cfg.stderr_ansi = True
-        elif param in ("-i", "--info"):
+        elif param in FLAGS["INFO"]:
             cfg.log_lvl = leng.LogLvls.INFO
-        elif param in ("-W", "--no-warnings"):
+        elif param in FLAGS["NO-WARNINGS"]:
             if cfg.log_lvl <= leng.LogLvls.WARN:
                 cfg.log_lvl = leng.LogLvls.ERR
-        elif param in ("-h", "--help"):
+        elif param in FLAGS["HELP"]:
             ugen.write("\n".join(HELP_TXT).expandtabs(2))
             sys.exit(uerr.ERR_ALL_GOOD)
         # Options after this, hence check if value is present
@@ -121,14 +127,14 @@ def parse_argv(cfg: MainProgParsed, passed_params: list[str]) -> MainProgParsed:
             ugen.err_Q(f"Expected value for '{param}'")
             sys.exit(uerr.ERR_MP_EXPD_VAL_OPT)
         # Options
-        elif param in ("-l", "--line-mode"):
+        elif param in OPTS["LINE-MODE"]:
             val = passed_params[idx + 1]
             if val not in ("emacs", "vi", "raw"):
                 ugen.err_Q(f"Invalid value for '{param}': '{val}'")
                 sys.exit(uerr.ERR_MP_INV_VAL)
             cfg.ln_mode = val
             idx += 1
-        elif param in ("-t", "--debug-time-unit"):
+        elif param in OPTS["DEBUG-TIME-UNIT"]:
             val = passed_params[idx + 1]
             if val == "ms":
                 cfg.debug_time_expo = 6

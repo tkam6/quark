@@ -2,7 +2,8 @@
 **/__pycache__/
 **/*.pyc
 **/*.egg-info/
-**/mypy_cache/
+**/.mypy_cache/
+**/.ruff_cache/
 
 # Development
 dev/cache_pyc_rmer.py
