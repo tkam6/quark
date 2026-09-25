@@ -70,6 +70,7 @@ Go to the project root, and build the project with the build script `dev/pc.py`
 
 ```shell
 python3 -m pip install -r ./build_reqmts.txt
+python3 -m pip install -e ./
 python3 -BOO ./dev/pc.py
 ```
 

@@ -247,7 +247,7 @@ def get_config_from_toml(
 ### ARGV PARSING
 ###############################################################################
 
-def parse_args(config_obj: Config) -> Config:
+def parse_argv(config_obj: Config) -> Config:
     argv              = sys.argv[1:]
     parse_opts_flags  = True
     i                 = 0
@@ -370,7 +370,7 @@ def main() -> None:
     config    = Config()
     toml_data = read_toml_file(toml_file)
     config    = get_config_from_toml(config, toml_data)
-    config    = parse_args(config)
+    config    = parse_argv(config)
 
     global LOG_LVL
     LOG_LVL = config.log_lvl
