@@ -5,7 +5,6 @@ import typing as ty
 from src.utils import err_codes as uerr
 from src.utils import gen as ugen
 
-
 CMD_NM = __name__.split(".")[-1]
 
 HELP = ugen.HelpObj(
@@ -77,6 +76,7 @@ def cp_fl(
 
 
 def cp_dir(
+    cmd_nm: str,
     src: str,
     dst: str,
     cp_fn: ty.Callable[[ty.Any, ...], ty.Any],
@@ -138,7 +138,7 @@ def cp_dir(
         except FileExistsError:
             ugen.err(
                 f"Directory exists: \"{os.path.join(dst, src_base)}\"",
-                nm=cmd_nm
+                nm=cmd_nm,
             )
             return uerr.ERR_DIR_EXISTS
         except sh.Error as e:
@@ -171,6 +171,7 @@ def cp_src_to_dst(
         return cp_fl(cmd_nm, src, dst, cp_fn, follow_symlnks, overwrite)
     elif os.path.isdir(src):
         return cp_dir(
+            cmd_nm,
             src,
             dst,
             cp_fn,

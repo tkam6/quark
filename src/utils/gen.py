@@ -491,8 +491,6 @@ def inp(inp_hdlr: InpHdlr, hist: str, tab_spaces: int = 4) -> str:
         init_pos = get_pos()
     init_ln, init_col = init_pos
     cur_ln, cur_col = init_ln, init_col
-    prev_ch = None
-    ch = None
     buf = []
     # TODO: Make it include current line being typed in history, i.e. you get
     # last entry in history to be the current line being typed. Tried to
@@ -563,7 +561,6 @@ def inp(inp_hdlr: InpHdlr, hist: str, tab_spaces: int = 4) -> str:
 
         # ^w - kill word before cursor
         elif full_key == "\x17":
-            buf_len = len(buf)
             # Delete whitespace just before cursor before deleting word
             while (
                 cur_col - init_col > 0

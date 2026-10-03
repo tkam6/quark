@@ -1,12 +1,10 @@
 import datetime as dt
 import errno
-import itertools as it
 import math
 import os
 import pathlib as pl
 import pwd
 import stat
-import sys
 import typing as ty
 
 from src.utils import consts as uconst
@@ -155,21 +153,22 @@ class EscWhichObj(ty.NamedTuple):
 
 ItemType = FlEntry | SplDirEntry | os.DirEntry
 
+EscWhichObj_empty_inited = EscWhichObj()
 
-def esc_item_nm(nm: str, esc_which: EscWhichObj = EscWhichObj()) -> str:
+
+def esc_item_nm(
+        nm: str,
+        esc_which: EscWhichObj = EscWhichObj_empty_inited,
+    ) -> str:
     # TODO: Implement regex for this
     str_arr = []
     for ch in nm:
-        if esc_which.quotes and ch in QUOTES and ch != "\'":
-            str_arr.append("\\" + ch)
-            continue
-        elif esc_which.sp_chrs and ch in SP_CHRS:
-            str_arr.append("\\" + ch)
-            continue
-        elif esc_which.bslash and ch in BSLASH:
-            str_arr.append("\\" + ch)
-            continue
-        elif esc_which.other and ch in OTHER:
+        if (
+                (esc_which.quotes and ch in QUOTES and ch != "\'")
+                or (esc_which.sp_chrs and ch in SP_CHRS)
+                or (esc_which.bslash and ch in BSLASH)
+                or (esc_which.other and ch in OTHER)
+            ):
             str_arr.append("\\" + ch)
             continue
         str_arr.append(ch)
@@ -188,7 +187,6 @@ def esc_item_nm(nm: str, esc_which: EscWhichObj = EscWhichObj()) -> str:
 def get_items(cmd_nm: str, pth: str, ctx: LsCtx) \
         -> tuple[list[tuple[ItemEntry, os.stat_result]], int]:
     err_code = uerr.ERR_ALL_GOOD
-    typ = ""
     items = []
 
     # Is a file
@@ -211,8 +209,7 @@ def get_items(cmd_nm: str, pth: str, ctx: LsCtx) \
         if ctx.item_visibility == "all":
             parent = SplDirEntry("..")
             curr = SplDirEntry(".")
-            items.append((parent, parent.lstat()))
-            items.append((curr, curr.lstat()))
+            items.extend((parent, parent.lstat()), (curr, curr.lstat()))
 
         for i in iterator:
             try:
@@ -230,7 +227,7 @@ def get_items(cmd_nm: str, pth: str, ctx: LsCtx) \
                         nm=cmd_nm
                     )
                     continue
-                raise e
+                raise
 
     # Doesn't exist
     else:
@@ -384,7 +381,6 @@ def long_list_prn(
             str(i.num_inode_lnk).rjust(max_num_inode_lnk_len)
         )
         coloured_nm = ugen.S.fmt(i.nm, is_tty, i.colour)
-        nm_fmted = ("\"" if i.quote else " ") + coloured_nm + ("\"" if i.quote else "")
         ugen.write(
             i.typ
             + " " + item_perms

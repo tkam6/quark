@@ -24,14 +24,13 @@ CMD_SPEC = ugen.CmdSpec(
 )
 
 
-def high_mem() -> None:
+def high_mem(data: ugen.CmdData) -> None:
     ugen.write(data.stdin)
     full = 10 ** 8
     segment = full // 5
     for j, i in enumerate(range(segment, full, segment)):
         ugen.write(str(j) * i)
-        x = " " * 10 ** 10
-    return None
+        " " * 10 ** 10
 
 
 def run(data: ugen.CmdData) -> int:
@@ -93,8 +92,8 @@ exception ChildProcessError
     return uerr.ERR_ALL_GOOD
 
 
-def run(data: ugen.CmdData) -> int:
-    ugen.write(data.stdin)
-    data.env_vars["sneha"] = "hello"
-    data.intrpr_vars["thiru"] = "world"
-    return uerr.ERR_ALL_GOOD
+# def run(data: ugen.CmdData) -> int:
+#     ugen.write(data.stdin)
+#     data.env_vars["sneha"] = "hello"
+#     data.intrpr_vars["thiru"] = "world"
+#     return uerr.ERR_ALL_GOOD

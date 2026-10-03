@@ -129,7 +129,6 @@ class Parser:
             if not status or (isinstance(param, past.Quoted) and param.quote in ("\"", "`")):
                 final.append(part)
                 continue
-            ugen.info(repr(part))
             if part[0] == "~":
                 final.append(usr_dir + part[1 :])
                 continue

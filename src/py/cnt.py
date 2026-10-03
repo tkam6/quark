@@ -1,7 +1,5 @@
-import os
 import pathlib as pl
 import re
-import sys
 
 from src.utils import err_codes as uerr
 from src.utils import gen as ugen
@@ -218,10 +216,10 @@ def run(data: ugen.CmdData) -> int:
                 ugen.S.fmt(i.fl_nm, data.is_tty or clr_no_tty, ugen.S.green_4) + ":",
                 max_arg_len
             )
-            + ((f" b:" + fl_sz_fmted) if show_bytes else "")
-            + ((f" c:" + fl_chrs_fmted) if show_chrs else "")
-            + ((f" w:" + fl_words_fmted) if show_words else "")
-            + ((f" l:" + fl_lns_fmted) if show_lns else "")
+            + ((f" b:{fl_sz_fmted}") if show_bytes else "")
+            + ((f" c:{fl_chrs_fmted}") if show_chrs else "")
+            + ((f" w:{fl_words_fmted}") if show_words else "")
+            + ((f" l:{fl_lns_fmted}") if show_lns else "")
             + "\n"
         )
 

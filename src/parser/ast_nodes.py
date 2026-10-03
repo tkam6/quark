@@ -113,8 +113,7 @@ class CmdExpr:
         return f"E{self.simp_cmds}"
 
     def __iter__(self) -> ty.Iterator[SimpCmd]:
-        for i in self.simp_cmds:
-            yield i
+        yield from self.simp_cmds
 
     def __len__(self) -> int:
         return len(self.simp_cmds)

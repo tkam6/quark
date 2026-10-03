@@ -3,7 +3,6 @@ import json
 import pathlib as pl
 import pwd
 import stat
-import typing as ty
 
 from src.utils import err_codes as uerr
 from src.utils import gen as ugen
@@ -146,7 +145,7 @@ def run(data: ugen.CmdData) -> int:
             err_code = err_code or uerr.ERR_PERM_DENIED
             ugen.err(f"Access denied: \"{arg}\"", nm=data.cmd_nm)
             continue
-        except OSError:
+        except OSError as e:
             err_code = err_code or uerr.ERR_OS_ERR
             ugen.err(f"OS error; {e.strerror}", nm=data.cmd_nm)
             continue

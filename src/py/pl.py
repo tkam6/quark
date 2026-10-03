@@ -1,6 +1,5 @@
 import os
 import re
-import typing as ty
 
 from src.utils import err_codes as uerr
 from src.utils import gen as ugen
@@ -154,7 +153,7 @@ def run(data: ugen.CmdData) -> int:
             try:
                 repeat_num = int(val)
             except ValueError:
-                ugen.err(f"Cannot cast to int: '{repr(val)}'")
+                ugen.err(f"Cannot cast to int: '{val!r}'")
                 return uerr.ERR_CANT_CAST_VAL
 
     field_sepr = sep_chrs * repeat_num

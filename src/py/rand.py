@@ -64,7 +64,6 @@ def run(data: ugen.CmdData) -> int:
     # the default ranges need to be used, because in random integer selection,
     # default range is from 0 to 100.
     use_defa_rng = True
-    rng_typ = int
     min_num = 0
     max_num = 1
 
@@ -108,7 +107,7 @@ def run(data: ugen.CmdData) -> int:
     try:
         round_to_is_inf = math.isinf(round_to)
     except OverflowError:
-        ugen.err(f"Round off overflow: int too big", nm=data.cmd_nm)
+        ugen.err("Round off overflow: int too big", nm=data.cmd_nm)
         return uerr.ERR_INT_OVERFLOW
 
     if not round_to_is_inf and rand_int:

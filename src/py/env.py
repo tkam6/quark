@@ -1,11 +1,7 @@
-import os
 import typing as ty
 
-from src.utils import gen as ugen
-from src.utils import consts as uconst
 from src.utils import err_codes as uerr
-if ty.TYPE_CHECKING:
-    from src.intrpr import internals as iint
+from src.utils import gen as ugen
 
 CMD_NM = __name__.split(".")[-1]
 

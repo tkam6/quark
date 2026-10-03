@@ -67,7 +67,6 @@ def pg(txt: str, src: str | None, term_sz: os.terminal_size, is_tty: bool) -> No
                     break
     except KeyboardInterrupt:
         pass
-    return None
 
 
 def get_cntnt(pth: str) -> str | tuple[int, Exception]:
