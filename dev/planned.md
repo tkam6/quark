@@ -34,3 +34,8 @@ immediately before on stack, or the filename the log message originates from).
 available space. Like, after calculating the number of columns, re-adjust the
 column lengths after individual column lengths are found. Or something of that
 sort.
+
+### sys (src/bin/sys.py)
+
+- Create this command, and integrate system information, like hostname and the
+sort, into this command.
