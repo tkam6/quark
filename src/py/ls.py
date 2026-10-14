@@ -209,7 +209,7 @@ def get_items(cmd_nm: str, pth: str, ctx: LsCtx) \
         if ctx.item_visibility == "all":
             parent = SplDirEntry("..")
             curr = SplDirEntry(".")
-            items.extend((parent, parent.lstat()), (curr, curr.lstat()))
+            items.extend(((parent, parent.lstat()), (curr, curr.lstat())))
 
         for i in iterator:
             try:
@@ -367,7 +367,7 @@ def long_list_prn(
             num_inode_lnk=num_inode_lnk,
             syms=syms,
             quote=quote,
-            colour=colour
+            colour=colour,
         )
         to_prn.append(entry)
 
@@ -566,7 +566,7 @@ def run(data: ugen.CmdData) -> int:
         unsorted=unsorted,
         recur_dir_szs=recur_dir_szs,
         fmt_no_tty=fmt_no_tty,
-        padding=padding
+        padding=padding,
     )
 
     # No arguments
@@ -576,7 +576,7 @@ def run(data: ugen.CmdData) -> int:
             items, err_code = get_items(
                 data.cmd_nm,
                 pth,
-                ctx
+                ctx,
             )
         # FileNotFoundError, PermissionError will be caused by race conditions
         except FileNotFoundError:
@@ -598,7 +598,7 @@ def run(data: ugen.CmdData) -> int:
                     items,
                     is_tty=data.is_tty,
                     term_sz=data.term_sz,
-                    ctx=ctx
+                    ctx=ctx,
                 )
 
     # Yes arguments
@@ -609,7 +609,7 @@ def run(data: ugen.CmdData) -> int:
                 items, tmp_err_code = get_items(
                     data.cmd_nm,
                     os.path.expanduser(arg),
-                    ctx=ctx
+                    ctx=ctx,
                 )
             # FileNotFoundError, PermissionError will be due to race conditions
             except FileNotFoundError:
@@ -634,7 +634,7 @@ def run(data: ugen.CmdData) -> int:
                     items,
                     is_tty=data.is_tty,
                     term_sz=data.term_sz,
-                    ctx=ctx
+                    ctx=ctx,
                 )
 
     return err_code
