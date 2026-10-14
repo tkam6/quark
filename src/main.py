@@ -7,6 +7,7 @@ import traceback as tb
 
 from src.intrpr import cfg_mgr as cmgr
 from src.intrpr import eng as ieng
+from src.intrpr import prompt as iprom
 from src.logger import eng as leng
 from src.utils import consts as uconst
 from src.utils import err_codes as uerr
@@ -227,7 +228,7 @@ def main() -> None:
                 prompt = uconst.Defaults.PROMPT
                 prompt_404_warned = True
             # ugen.fatal("test quark critical error", ret=1)
-            raw_ln = input(intrpr.reslv_prompt(prompt))
+            raw_ln = input(iprom.reslv_prompt(intrpr, prompt))
             cmd_ret = intrpr.exec(raw_ln)
             intrpr.intrpr_vars["LAST_RET"] = cmd_ret
             ugen.debug(str(intrpr.intrpr_vars))
