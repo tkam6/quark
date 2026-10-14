@@ -1,12 +1,7 @@
-import atexit
 import dataclasses as dcs
 import os
 import re
-import select
-import signal as sig
 import sys
-import termios
-import tty
 import typing as ty
 
 from src.parser import internals as pint

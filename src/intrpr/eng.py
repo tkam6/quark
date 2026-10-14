@@ -6,7 +6,6 @@ import multiprocessing.shared_memory as mpshm
 import os
 import os.path as ospth
 import pickle as pi
-import platform as pf
 import pwd
 import re
 import select as sel
@@ -20,6 +19,7 @@ import typing as ty
 from src.intrpr import cfg_mgr as cmgr
 from src.intrpr import cmd_reslvr as icrsr
 from src.intrpr import internals as iint
+from src.intrpr import params as iparam
 from src.parser import ast_nodes as past
 from src.parser import eng as peng
 from src.utils import consts as uconst
@@ -485,7 +485,7 @@ class Intrpr:
         stdout_obj: io.TextIOBase,
         stderr_obj: io.TextIOBase
     ):
-        tmp = iint.classi_params(cmd_nm, params, cmd_spec)
+        tmp = iparam.classi_params(cmd_nm, params, cmd_spec)
         if isinstance(tmp, int):
             return iint.CmdCompdObj(tmp)
         sub_cmd, args, opts, flags = tmp

@@ -227,7 +227,6 @@ def main() -> None:
                 ugen.crit_Q("test quark critical error")
                 prompt = uconst.Defaults.PROMPT
                 prompt_404_warned = True
-            # ugen.fatal("test quark critical error", ret=1)
             raw_ln = input(iprom.reslv_prompt(intrpr, prompt))
             cmd_ret = intrpr.exec(raw_ln)
             intrpr.intrpr_vars["LAST_RET"] = cmd_ret
