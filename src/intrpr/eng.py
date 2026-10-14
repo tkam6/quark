@@ -87,7 +87,7 @@ class Intrpr:
             size=self.SHM_SZ
         )
         self.lock = mp.RLock()
-        atexit.register(self.shm.unlink)
+        atexit.register(self.shm.close)
 
         self.ext_cached_cmds = {}
         self.cfg = cfg

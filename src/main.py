@@ -1,4 +1,5 @@
 #!/usr/bin/env -S python3 -BOO
+import atexit
 import dataclasses as dcs
 import os
 import signal as sig
@@ -192,6 +193,9 @@ def main() -> None:
             debug_time_expo=parsed.debug_time_expo,
             log_lvl=parsed.log_lvl
         )
+        intrpr_proc_pid = os.getpid()
+        atexit.register(unlink_shm, intrpr, intrpr_proc_pid)
+
         ugen.info_Q(f"running from \"{uconst.RUN_PTH}\"")
         # No line mode option passed from command line
         if parsed.ln_mode == "default":
@@ -253,6 +257,11 @@ def main() -> None:
                 uerr.ERR_UNK_FATAL,
                 exc_txt=tb.format_exc()
             )
+
+
+def unlink_shm(intrpr_obj: ieng.Intrpr, intrpr_proc_pid: int):
+    if os.getpid() == intrpr_proc_pid:
+        intrpr_obj.shm.unlink()
 
 
 if __name__ == "__main__":
