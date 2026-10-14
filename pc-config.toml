@@ -1,5 +1,5 @@
 force = true
-quiet = false
+quiet = true
 file = "./src/main.py"
 full-directories = ["./src/py/"]
 raw-files = ["./src/cfg.py"]

@@ -23,6 +23,11 @@ close the shared memory descriptor or something...
 
 ## Utilities
 
+### src/utils/gen.py
+
+- None of `ugen.{fatal,crit,err,warn,info,debug}(...)` actually log to files.
+Something wrong with file logging.
+
 ## Command modules
 
 ### src/intrpr/builtin_cmds/help.py
@@ -38,3 +43,7 @@ the commands in the file. For example, try running a file with the text
 because it seems to be a race between the output text and the debug messages. I
 suspect it's due to the output being slow to reach the parent process from the
 child process through the pipe.
+
+### src/py/ls.py
+
+- `ls -la` raises a TypeError.

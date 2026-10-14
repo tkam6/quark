@@ -1,3 +1,4 @@
+import atexit
 import enum
 import io
 import os
@@ -27,13 +28,14 @@ class Lgr:
         nm: str,
         src: str,
         lvl: int,
-        stream: io.TextIOBase
+        stream: io.TextIOBase,
     ) -> None:
         self.nm = nm
         self.src = src
         self.lvl = lvl
         self.stream = stream
         self.fl_num = self.stream.fileno()
+        atexit.register(self.stream.close)
 
     def _log(self, msg: str, lvl: int, fmting: str | None = None) -> None:
         if lvl < self.lvl:
@@ -46,7 +48,7 @@ class Lgr:
                 + self.src
                 + (ugen.S.reset if fmting is not None else "")
                 + f" {msg}\n"
-            ).encode()
+            ).encode(),
         )
 
     def debug(self, msg: str) -> None:

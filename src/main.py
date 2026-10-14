@@ -167,12 +167,12 @@ def parse_argv(cfg: MainProgParsed, passed_params: list[str]) -> MainProgParsed:
 def main() -> None:
     try:
         parsed = parse_argv(MainProgParsed(), sys.argv[1 :])
-        with open(uconst.LOG_FL, "a") as log_fd:
-            lgrs = leng.LgrVessel(
-                leng.Lgr("lgr_c", "C", parsed.log_lvl, sys.stderr),
-                leng.Lgr("lgr_q", "Q", parsed.log_lvl, sys.stderr),
-                leng.Lgr("fl_lgr", "F", leng.LogLvls.CRIT, log_fd)
-            )
+        log_fd =  open(uconst.LOG_FL, "a")
+        lgrs = leng.LgrVessel(
+            leng.Lgr("lgr_c", "C", parsed.log_lvl, sys.stderr),
+            leng.Lgr("lgr_q", "Q", parsed.log_lvl, sys.stderr),
+            leng.Lgr("fl_lgr", "F", leng.LogLvls.CRIT, log_fd)
+        )
         # Recommended not to put any debug, info or warning statements above
         # this, because even though those functions can handle loggers not
         # being initialised, they do not obey the log levels, because log
@@ -223,8 +223,10 @@ def main() -> None:
             except ugen.UnkVarErr:
                 if not prompt_404_warned:
                     ugen.warn_Q("PROMPT not found; using default")
+                ugen.crit_Q("test quark critical error")
                 prompt = uconst.Defaults.PROMPT
                 prompt_404_warned = True
+            # ugen.fatal("test quark critical error", ret=1)
             raw_ln = input(intrpr.reslv_prompt(prompt))
             cmd_ret = intrpr.exec(raw_ln)
             intrpr.intrpr_vars["LAST_RET"] = cmd_ret
