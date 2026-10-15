@@ -104,7 +104,7 @@ LN_MODE: str = "emacs"
 
 ## Architecture
 
-See the [Architecture](`dev/archi.mod`) file.
+See the [Architecture](dev/archi.mod) file.
 
 ## Project status
 
