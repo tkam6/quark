@@ -220,7 +220,7 @@ def run(data: ugen.CmdData) -> int:
             else:
                 ugen.err(
                     f"Invalid value for option '{opt}': '{val}'",
-                    nm=cmd_nm
+                    nm=data.cmd_nm,
                 )
                 return uerr.ERR_INV_VAL_OPT
 

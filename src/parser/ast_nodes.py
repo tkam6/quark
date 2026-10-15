@@ -12,7 +12,7 @@ class Tok:
         return repr(self.val)
 
     def __str__(self) -> str:
-        return self.__repr__()
+        return str(self.val)
 
     def __len__(self) -> int:
         return len(self.val)

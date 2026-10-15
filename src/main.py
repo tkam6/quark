@@ -194,7 +194,7 @@ def main() -> None:
             log_lvl=parsed.log_lvl
         )
         intrpr_proc_pid = os.getpid()
-        atexit.register(unlink_shm, intrpr, intrpr_proc_pid)
+        atexit.register(lambda: intrpr.shm.unlink() if os.getpid() == intrpr_proc_pid else None)
 
         ugen.info_Q(f"running from \"{uconst.RUN_PTH}\"")
         # No line mode option passed from command line
@@ -257,11 +257,6 @@ def main() -> None:
                 uerr.ERR_UNK_FATAL,
                 exc_txt=tb.format_exc()
             )
-
-
-def unlink_shm(intrpr_obj: ieng.Intrpr, intrpr_proc_pid: int):
-    if os.getpid() == intrpr_proc_pid:
-        intrpr_obj.shm.unlink()
 
 
 if __name__ == "__main__":

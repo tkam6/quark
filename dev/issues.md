@@ -17,16 +17,8 @@ some errors takes place before the redirect stream is set).
 error code returned will be 0. Do `ls -l ~/Downloads/; a`, then the error code
 will be 200. Removing the unknown command (`a`) will still leave the error code
 at 200. `ls -l ~/Downloads/;` after this still leaves the error code at 200.
-- Executing `exit` in forked processes does something weird. Like, something
-related to shared memory. I think probably because `sys.exit(...)` tries to
-close the shared memory descriptor or something...
 
 ## Utilities
-
-### src/utils/gen.py
-
-- None of `ugen.{fatal,crit,err,warn,info,debug}(...)` actually log to files.
-Something wrong with file logging.
 
 ## Command modules
 
@@ -43,7 +35,3 @@ the commands in the file. For example, try running a file with the text
 because it seems to be a race between the output text and the debug messages. I
 suspect it's due to the output being slow to reach the parent process from the
 child process through the pipe.
-
-### src/py/ls.py
-
-- `ls -la` raises a TypeError.

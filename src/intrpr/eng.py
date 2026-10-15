@@ -64,7 +64,7 @@ class Intrpr:
             uerr.ERR_INV_HELP_OBJ: "Bad help oject",
             uerr.ERR_RECUR_ERR: "Recursion limit exceeded",
             uerr.ERR_CMD_SYN_ERR: "Syntax error",
-            uerr.ERR_CANT_LD_CMD_MOD: "Load failed"
+            uerr.ERR_CANT_LD_CMD_MOD: "Load failed",
         }
         self.usr_dir = os.path.expanduser("~")
         self.uid = str(os.getuid())
@@ -72,10 +72,7 @@ class Intrpr:
         self.is_usr_root = (self.uid == "0")
 
         # See src.intrpr.internals.EnvTbl for memory layout
-        # Memory for total number of items = 8B
-        # Memory for write index           = 64B
-        # Maximum number of entries        = 100
-        # Memory per variable entry        = (8+8+128+8048)B = 8192B = 8KiB
+        # Memory per variable entry = 8192B = 8KiB
         #     Length of key   = 8B
         #     Length of value = 8B
         #     Key             = 128B
@@ -84,7 +81,7 @@ class Intrpr:
         self.shm = mpshm.SharedMemory(
             create=True,
             track=True,
-            size=self.SHM_SZ
+            size=self.SHM_SZ,
         )
         self.lock = mp.RLock()
         atexit.register(self.shm.close)
@@ -732,6 +729,7 @@ class Intrpr:
                 )
                 return uerr.ERR_EXPD_PARAM_RT_OP
             if len(r_simp_cmd) < 1:
+                print(op)
                 ugen.err_Q(
                     f"Missing parameter for operator '{op}' at pos {op.end}"
                 )

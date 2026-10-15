@@ -7,3 +7,6 @@ build: ./dev/pc.py ./src/main.py
 
 release: ./dev/pc.py ./src/main.py
 	./dev/pc.py --enable-lto
+
+debug: ./dev/pc.py ./src/main.py
+	./dev/pc.py --debug-build
