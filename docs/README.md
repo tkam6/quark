@@ -2,7 +2,6 @@
 
 A pure-Python, extensible command-line shell with its own parser, execution engine, pipeline system and scripting environment. Quark focuses on simplicity and lightweightness. Holy larp.
 
-See [`CHANGELOG.md`](./CHANGELOG.md) for a history of changes.  
 See [`docs/`](../docs/) for detailed documentation on modules and internals.  
 See [`dev/`](../dev/) for development notes and plans.  
 See [`dev/planned.md`](../dev/planned.md) for future development plans and
@@ -39,13 +38,11 @@ You know, the goal is not to replace Bash or Zsh or other mature shells. Rather,
 ## Quick start: running from source
 
 Python 3.13 or later is required for running the program from source.  
-To run the shell from source:
+To run the shell from source, clone this repository, `cd` into it, and:
 
 ```shell
-git clone https://gitea.com/vallu/quark.git
-cd ./quark/
 python3 -m venv ./.venv/
-source ./.venv/bin/activate
+. ./.venv/bin/activate
 python3 -m pip install -e ./
 python3 -BOO ./src/main.py
 ```
@@ -63,25 +60,25 @@ echo -s , hello world
 ## Building from source
 
 Python 3.13.15 and Nuitka 4.2.1 are required for building the project.  
-See the full list of dependencies in `build_reqmts.txt`.
+See the full list of dependencies in `requirements-buildtime.txt`.
 
-Go to the project root, and build the project with the build script `dev/pc.py`
-(assuming the project was already cloned and virtual environment activated):
+To build this project, clone this repository, `cd` into it, and use the build
+script `dev/pc.py`:
 
 ```shell
-python3 -m pip install -r ./build_reqmts.txt
+python3 -m venv ./.venv/
+. ./.venv/bin/activate
 python3 -m pip install -e ./
+python3 -m pip install -r ./requirements-buildtime.txt
 python3 -BOO ./dev/pc.py
 ```
 
-The help text is not available for the build script as of now, so please go
-through the build script source to find out which options and flags are
-available.
+Help text is not available for the build script as of now, so go through the
+build script source to find out what options and flags are available.
 
 ## Pre-built binaries
 
-For pre-built binaries, check out the
-[Releases](https://gitea.com/vallu/quark/releases/) page.
+It's best to build it yourself.
 
 ## Configuration
 
@@ -93,25 +90,26 @@ main program is.
 Configuration options available:
 
 ```python
+# The comments are examples
+# {"ls": "ls -a", "cat": "prn", ...}
 ALIASES: dict[str, str] = {}
+# ("@bin/special", "~/py", ...)
 PTH: tuple[str, ...] = (USR_PY_PTH, *SYS_PY_PTHS, PY_PTH)
+# PROMPT = some_function
+# PROMPT = "!u@!h !p $"
 PROMPT: str | typing.Callable[[intrpr.internals.IntrprTbl], str] = utils.consts.Defaults.PROMPT
+# Accepted values: "emacs", "vi", "raw"
 LN_MODE: str = "emacs"
 ```
 
 ## Architecture
 
-The project is divided into several major components:
-
-- **Parser**: tokenises the raw input.
-- **Engine** (yes, silly name, I know): evaluates and executes commands.
-- **Logger**: the custom logging facility for this project.
-- **Utilities**: parts of the project that various other parts use.
+See the [Architecture](`dev/archi.mod`) file.
 
 ## Project status
 
-The project is still in development, and may contain a *lot* of bugs. Use at
-your own risk.
+The project is still very early in development, and may contain a *lot* of
+bugs. Use at your own risk. Or better, don't use it at all.
 
 ## Contributing
 

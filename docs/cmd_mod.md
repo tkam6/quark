@@ -3,8 +3,9 @@
 ## Requirements for a command module
 
 Valid command modules for Quark require two compulsory variables `HELP` and
-`CMD_SPEC`, and one compulsory function `run` in the module scope. The command
-module is rejected if these attributes are not present in the module.
+`CMD_SPEC`, and one compulsory function `run`, all of them in the module scope.
+The command module is rejected if these attributes are not present in the
+module.
 
 ## Types of required attributes
 
@@ -33,22 +34,28 @@ make sure that their names do not clash with `HELP`, `CMD_SPEC` and `run`.
 
 When a command is invoked:
 
-1. The command module is loaded
-2. The module is validated based on if it contains the required attributes and
-the type of the attributes
+1. Command module is loaded
+2. Module is validated based on if it contains the required attributes and the
+type of the attributes
 3. The `run` function is extracted, and called with a `CmdData` object passed
 to it. It is called in a forked process if it is an external command, or the
 same process as the interpreter if it is a built-in command
 4. The integer returned by `run` is considered the exit code of the command,
-which is assigned to the environment variable `_LAST_RET_`.
+which is assigned to the interpreter variable `LAST_RET`.
+
+Please make note of these option and flag rules:
+
+- Short-form options and flags are preceeded by a single hyphen (`-`)
+- Long-form options and flags are preceeded by double hyphens (`--`)
+- Short-form flags (note, only flags) can be combined, like `ls -la`
 
 ## Example
 
 ```python
-import utils.err_codes
-import utils.gen
+from src.utils import err_codes as uerr
+from src.utils import gen as ugen
 
-HELP = utils.gen.HelpObj(
+HELP = ugen.HelpObj(
     usage="test [flag ...] [opt] arg [...]",
     summary="Example summary",
     details=(
@@ -62,14 +69,14 @@ HELP = utils.gen.HelpObj(
     )
 )
 
-CMD_SPEC = utils.gen.CmdSpec(
+CMD_SPEC = ugen.CmdSpec(
     min_args=1,
     max_args=float("inf"),
-    opts=("-opt",),
-    flags=("-f", "-flag", "-flag2")
+    opts=("--opt",),
+    flags=("-f", "--flag", "--flag2"),
 )
 
 
-def run(data: utils.gen.CmdData) -> int:
-    return utils.err_codes.ERR_ALL_GOOD
+def run(data: ugen.CmdData) -> int:
+    return uerr.ERR_ALL_GOOD
 ```
