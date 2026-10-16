@@ -102,7 +102,7 @@ def parse_argv(cfg: MainProgParsed, passed_params: list[str]) -> MainProgParsed:
             continue
         if param not in all_flags_opts:
             if [i for i in param[1 :] if f"-{i}" not in all_flags]:
-                ugen.fatal_Q(f"Unknown parameter: '{param}'")
+                ugen.fatal_Q(f"Unknown parameter: '{param}'", ret=uerr.ERR_MP_UNK_TOK)
                 sys.exit(uerr.ERR_MP_UNK_TOK)
             params[idx : idx + 1] = list(param[1 :])
             continue
