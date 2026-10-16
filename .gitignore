@@ -17,6 +17,7 @@ push.sh
 releases/
 tmp/
 .venv/
+.ninja_log
 
 # Tests
 tests/lexer/*.txt
