@@ -33,26 +33,26 @@ def run(data: ugen.CmdData) -> int:
                 fl_cntnt = f.read()
         except FileNotFoundError:
             ugen.err(f"No such file/directory: \"{arg}\"", nm=data.cmd_nm)
-            return uerr.ERR_FL_404
+            return uerr.RC.FL_404
         except PermissionError:
             ugen.err(f"Access denied: \"{arg}\"", nm=data.cmd_nm)
-            return uerr.ERR_PERM_DENIED
+            return uerr.RC.PERM_DENIED
         except IsADirectoryError:
             ugen.err(f"Is a directory: \"{arg}\"", nm=data.cmd_nm)
-            return uerr.ERR_IS_A_DIR
+            return uerr.RC.IS_A_DIR
         except UnicodeDecodeError:
             ugen.err("Cannot decode file: \"{arg}\"")
-            return uerr.ERR_DECODE_ERR
+            return uerr.RC.DECODE_ERR
         except OSError as e:
             ugen.err(f"OS error; {e.strerror}", nm=data.cmd_nm)
-            return uerr.ERR_OS_ERR
+            return uerr.RC.OS_ERR
 
-    err = uerr.ERR_ALL_GOOD
+    err = uerr.RC.ALL_GOOD
     for ln in fl_cntnt.splitlines():
         tmp = data.exec_fn(ln)
         err = err or tmp
 
-    err_code = uerr.ERR_ALL_GOOD
+    err_code = uerr.RC.ALL_GOOD
     if err:
         err_code = ERR_FROM_CMD
     data.intrpr_vars["_RN_CMD_RET_"] = err

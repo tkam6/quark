@@ -43,13 +43,13 @@ def classi_params(
                         f"Expected value for option '{param_val}'",
                         nm=cmd_nm,
                     )
-                    return uerr.ERR_EXPD_VAL_OPT
+                    return uerr.RC.EXPD_VAL_OPT
                 opts[param_val] = params[idx + 1].val
                 skip += 1
             # Invalid long-form option/flag
             else:
                 ugen.err(f"Invalid option/flag: '{param_val}'", nm=cmd_nm)
-                return uerr.ERR_INV_OPTS_FLAGS
+                return uerr.RC.INV_OPTS_FLAGS
             continue
 
         # SHORT-FORM OPTIONS AND FLAGS, OR COMBINED SHORT-FORM FLAGS
@@ -66,7 +66,7 @@ def classi_params(
                         f"Expected value for option '{param_val}'",
                         nm=cmd_nm
                     )
-                    return uerr.ERR_EXPD_VAL_OPT
+                    return uerr.RC.EXPD_VAL_OPT
                 opts[param_val] = params[idx + 1].val
                 skip += 1
             else:
@@ -76,7 +76,7 @@ def classi_params(
                         f"Invalid option/flag: '{param_val}'",
                         nm=cmd_nm,
                     )
-                    return uerr.ERR_INV_OPTS_FLAGS
+                    return uerr.RC.INV_OPTS_FLAGS
                 # Combined short flags
                 for i in param_val[1 :]:
                     if "-" + i in cmd_spec.flags:
@@ -86,7 +86,7 @@ def classi_params(
                         f"Invalid option/flag: '{param_val}'",
                         nm=cmd_nm,
                     )
-                    return uerr.ERR_INV_OPTS_FLAGS
+                    return uerr.RC.INV_OPTS_FLAGS
             continue
 
         # ARGUMENTS
@@ -96,7 +96,7 @@ def classi_params(
                 f"Argument overflow; {arg_cnt} not in [{cmd_spec.min_args}, {cmd_spec.max_args}]",
                 nm=cmd_nm,
             )
-            return uerr.ERR_UNEXPD_ARGS
+            return uerr.RC.UNEXPD_ARGS
         args.append(param_val)
 
     if arg_cnt < cmd_spec.min_args:
@@ -104,7 +104,7 @@ def classi_params(
             f"Argument underflow; {arg_cnt} not in [{cmd_spec.min_args}, {cmd_spec.max_args}]",
             nm=cmd_nm,
         )
-        return uerr.ERR_INSUFF_ARGS
+        return uerr.RC.INSUFF_ARGS
 
     # Horrendous
     sub_cmd = None
@@ -115,10 +115,10 @@ def classi_params(
         if sub_cmd not in cmd_spec.sub_cmds:
             if sub_cmd is None:
                 ugen.err("Expected subcommand", nm=cmd_nm)
-                return uerr.ERR_EXPD_SUB_CMD
+                return uerr.RC.EXPD_SUB_CMD
             else:
                 ugen.err(f"Invalid subcommand: '{sub_cmd}'", nm=cmd_nm)
-                return uerr.ERR_INV_SUB_CMD
+                return uerr.RC.INV_SUB_CMD
         # Check if number of arguments supplied is correct for the
         # subcommand
         lower_lt = cmd_spec.sub_cmds[sub_cmd][0]
@@ -132,7 +132,7 @@ def classi_params(
                 ),
                 nm=cmd_nm,
             )
-            return uerr.ERR_INSUFF_ARGS
+            return uerr.RC.INSUFF_ARGS
         elif arg_cnt > upper_lt:
             ugen.err(
                 (
@@ -142,6 +142,6 @@ def classi_params(
                 ),
                 nm=cmd_nm,
             )
-            return uerr.ERR_UNEXPD_ARGS
+            return uerr.RC.UNEXPD_ARGS
 
     return (sub_cmd, tuple(args), opts, tuple(flags))

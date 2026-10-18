@@ -79,7 +79,7 @@ class Parser:
             prev_chr = char
         else:
             ugen.err_Q(f"No closing quote at position {idx}")
-            return uerr.ERR_NO_CLOSING_QUOTE
+            return uerr.RC.NO_CLOSING_QUOTE
 
         return past.Quoted(
             # Do not include the closin quote in the value
@@ -161,7 +161,7 @@ class Parser:
                 continue
             if i == param_len - 1:
                 ugen.err_Q(f"Lone backslash at position {param.start + i}")
-                return uerr.ERR_LONE_B_SLASH
+                return uerr.RC.LONE_B_SLASH
 
             esc_chr_chk_res = pint.ESC_CHR_MAP.get("\\" + param.val[i + 1])
             dir_exp_chr_chk_res = pint.DIR_EXP_CHRS.get("\\" + param.val[i + 1])
@@ -298,7 +298,7 @@ class Parser:
             idx = self._skip_ws(ln, ln_len, idx)
             curr_ch = ln[idx]
             if curr_ch not in pint.CMD_SEPRS:
-                return uerr.ERR_UNRECOGD_CMD_SEPR
+                return uerr.RC.UNRECOGD_CMD_SEPR
             # For the command separator character
             idx += 1
 

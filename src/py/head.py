@@ -27,7 +27,7 @@ CMD_SPEC = ugen.CmdSpec(
 
 
 def run(data: ugen.CmdData) -> int:
-    err_code = uerr.ERR_ALL_GOOD
+    err_code = uerr.RC.ALL_GOOD
     num_of_lns = 5
     show_ln_nums = False
 
@@ -45,26 +45,26 @@ def run(data: ugen.CmdData) -> int:
                     f"Cannot cast to int for '{opt}': '{val}'",
                     nm=data.cmd_nm
                 )
-                return uerr.ERR_CANT_CAST_VAL
+                return uerr.RC.CANT_CAST_VAL
 
     for arg in data.args:
         try:
             with open(arg) as f:
                 cntnt = [ln for _ in range(num_of_lns) if (ln := f.readline())]
         except FileNotFoundError:
-            err_code = err_code or uerr.ERR_FL_404
+            err_code = err_code or uerr.RC.FL_404
             ugen.err(f"No such file: \"{arg}\"", nm=data.cmd_nm)
             continue
         except PermissionError:
-            err_code = err_code or uerr.ERR_PERM_DENIED
+            err_code = err_code or uerr.RC.PERM_DENIED
             ugen.err(f"Access denied: \"{arg}\"", nm=data.cmd_nm)
             continue
         except IsADirectoryError:
-            err_code = err_code or uerr.ERR_IS_A_DIR
+            err_code = err_code or uerr.RC.IS_A_DIR
             ugen.err(f"Is a directory: \"{arg}\"", nm=data.cmd_nm)
             continue
         except OSError as e:
-            err_code = err_code or uerr.ERR_OS_ERR
+            err_code = err_code or uerr.RC.OS_ERR
             ugen.err(f"OS error; {e.strerror}", nm=data.cmd_nm)
             continue
 

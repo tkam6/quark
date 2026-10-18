@@ -10,6 +10,6 @@ CMD_SPEC = ugen.CmdSpec(min_args=0, max_args=0, opts=(), flags=())
 
 
 def run(data: ugen.CmdData) -> int:
-    err_code = uerr.ERR_ALL_GOOD
+    err_code = uerr.RC.ALL_GOOD
     data.exec_fn("sl")
     return err_code

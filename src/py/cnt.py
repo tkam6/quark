@@ -71,18 +71,18 @@ def ld_fl(orig_fl_nm: str) -> tuple[int, str] | Err:
         # Bytes
         fl_sz = pl.Path(fl_nm).stat().st_size
     except FileNotFoundError:
-        return Err(f"No such file: \"{orig_fl_nm}\"", uerr.ERR_FL_404)
+        return Err(f"No such file: \"{orig_fl_nm}\"", uerr.RC.FL_404)
     except PermissionError:
-        return Err(f"Access denied: \"{orig_fl_nm}\"", uerr.ERR_PERM_DENIED)
+        return Err(f"Access denied: \"{orig_fl_nm}\"", uerr.RC.PERM_DENIED)
     except UnicodeDecodeError:
         return Err(
             f"Does not appear to contain text: \"{orig_fl_nm}\"",
-            uerr.ERR_DECODE_ERR
+            uerr.RC.DECODE_ERR
         )
     except IsADirectoryError:
-        return Err(f"Is a directory: \"{orig_fl_nm}\"", uerr.ERR_IS_A_DIR)
+        return Err(f"Is a directory: \"{orig_fl_nm}\"", uerr.RC.IS_A_DIR)
     except OSError as e:
-        return Err(f"OS error; {e.strerror}", uerr.ERR_OS_ERR)
+        return Err(f"OS error; {e.strerror}", uerr.RC.OS_ERR)
 
     return (str(fl_sz), fl_cntnt)
 
@@ -110,7 +110,7 @@ def get_txt_obj_cnt(
 
 
 def run(data: ugen.CmdData) -> int:
-    err_code = uerr.ERR_ALL_GOOD
+    err_code = uerr.RC.ALL_GOOD
     incl_nls_in_chrs = True
     words_sepd_by_ws = True
     show_bytes = False
@@ -150,7 +150,7 @@ def run(data: ugen.CmdData) -> int:
 
     if not data.args and not data.stdin:
         ugen.err("Expected arguments or STDIN", nm=data.cmd_nm)
-        return uerr.ERR_EXPD_STDIN_OR_ARGS
+        return uerr.RC.EXPD_STDIN_OR_ARGS
 
     # No filtering option given, thus show all
     if not (show_bytes or show_chrs or show_words or show_lns):

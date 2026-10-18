@@ -75,13 +75,13 @@ def rd_fl_as_bin(fl_pth: str) -> str | int:
             cntnt = f.read()
             return cntnt.decode()
     except PermissionError:
-        return uerr.ERR_PERM_DENIED
+        return uerr.RC.PERM_DENIED
     except FileNotFoundError:
-        return uerr.ERR_FL_404
+        return uerr.RC.FL_404
     except IsADirectoryError:
-        return uerr.ERR_IS_A_DIR
+        return uerr.RC.IS_A_DIR
     except OSError:
-        return uerr.ERR_OS_ERR
+        return uerr.RC.OS_ERR
 
 
 def cons_final_out_str(
@@ -119,7 +119,7 @@ def cons_final_out_str(
 
 
 def run(data: ugen.CmdData) -> int:
-    err_code = uerr.ERR_ALL_GOOD
+    err_code = uerr.RC.ALL_GOOD
     fields = ["pid", "name"]
     exact = False
     wrt_headers = True
@@ -146,7 +146,7 @@ def run(data: ugen.CmdData) -> int:
                     "Invalid value(s) for fields: "
                     + ", ".join(("'" + ugen.esc_chrs_all(i) + "'") for i in inv)
                 )
-                return uerr.ERR_INV_VAL_OPT
+                return uerr.RC.INV_VAL_OPT
         elif opt in OPTS["SEP_CHRS"]:
             sep_chrs = val
         elif opt in OPTS["REPEAT-CHARS"]:
@@ -154,7 +154,7 @@ def run(data: ugen.CmdData) -> int:
                 repeat_num = int(val)
             except ValueError:
                 ugen.err(f"Cannot cast to int: '{val!r}'")
-                return uerr.ERR_CANT_CAST_VAL
+                return uerr.RC.CANT_CAST_VAL
 
     field_sepr = sep_chrs * repeat_num
 

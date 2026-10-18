@@ -53,15 +53,15 @@ class CmdReslvr:
                 while data := f.read(buf_sz):
                     sha256.update(data)
         except FileNotFoundError:
-            return uerr.ERR_FL_404
+            return uerr.RC.FL_404
         except PermissionError:
-            return uerr.ERR_PERM_DENIED
+            return uerr.RC.PERM_DENIED
         except IsADirectoryError:
-            return uerr.ERR_IS_A_DIR
+            return uerr.RC.IS_A_DIR
         except OSError:
-            return uerr.ERR_OS_ERR
+            return uerr.RC.OS_ERR
         except Exception:
-            return uerr.ERR_UNK_ERR
+            return uerr.RC.UNK_ERR
         fl_hash = sha256.hexdigest()
         # DEBUG: Hash time end
         _t_hash = time.perf_counter_ns() - _t_hash
@@ -97,7 +97,7 @@ class CmdReslvr:
         fl: pl.Path
 
         if "/" in cmd or "\0" in cmd:
-            return uerr.ERR_BAD_CMD
+            return uerr.RC.BAD_CMD
 
         # DEBUG: Module load time start
         _t_mod_ld = time.perf_counter_ns()
@@ -143,19 +143,19 @@ class CmdReslvr:
                     exc_txt=(f"(resolver) Syntax error in command module '{cmd}':\n"
                              f"{tb.format_exc()}")
                 )
-                return uerr.ERR_CMD_SYN_ERR
+                return uerr.RC.CMD_SYN_ERR
             except Exception as e:
                 ugen.crit_Q(
                     f"Loading '{cmd}' raised {e.__class__.__name__}",
                     exc_txt=(f"(resolver) Loading '{cmd}' raised:\n"
                              f"{tb.format_exc()}")
                 )
-                return uerr.ERR_CANT_LD_CMD_MOD
+                return uerr.RC.CANT_LD_CMD_MOD
             # except RecursionError:
-            #     return uerr.ERR_RECUR_ERR
+            #     return uerr.RC.RECUR_ERR
 
             validate_res = self.validate_cmd_mod(cmd_mod)
-            if validate_res != uerr.ERR_ALL_GOOD:
+            if validate_res != uerr.RC.ALL_GOOD:
                 return validate_res
 
             ext_cached_cmds[cmd] = iint.CmdCacheEntry(
@@ -180,18 +180,18 @@ class CmdReslvr:
 
             return cmd_mod
 
-        return uerr.ERR_BAD_CMD
+        return uerr.RC.BAD_CMD
 
     def validate_cmd_mod(self, cmd_mod: types.ModuleType) -> int:
         has_cmd_fn = hasattr(cmd_mod, "run")
         has_cmd_spec = hasattr(cmd_mod, "CMD_SPEC")
         has_help_obj = hasattr(cmd_mod, "HELP")
         if not has_cmd_fn:
-            return uerr.ERR_NO_CMD_FN
+            return uerr.RC.NO_CMD_FN
         if not has_cmd_spec:
-            return uerr.ERR_NO_CMD_SPEC
+            return uerr.RC.NO_CMD_SPEC
         if not has_help_obj:
-            return uerr.ERR_NO_HELP_OBJ
+            return uerr.RC.NO_HELP_OBJ
 
         # Get help object, command spec and function and validate
         cmd_fn = cmd_mod.run
@@ -203,15 +203,15 @@ class CmdReslvr:
         is_spec_ok = isinstance(cmd_spec, ugen.CmdSpec)
         is_help_ok = isinstance(help_obj, ugen.HelpObj)
         if not is_fn_callable:
-            return uerr.ERR_UNCALLABLE_CMD_FN
+            return uerr.RC.UNCALLABLE_CMD_FN
         if not is_num_fn_params_ok:
-            return uerr.ERR_INV_NUM_PARAMS
+            return uerr.RC.INV_NUM_PARAMS
         if not is_spec_ok:
-            return uerr.ERR_INV_CMD_SPEC
+            return uerr.RC.INV_CMD_SPEC
         if not is_help_ok:
-            return uerr.ERR_INV_HELP_OBJ
+            return uerr.RC.INV_HELP_OBJ
 
-        return uerr.ERR_ALL_GOOD
+        return uerr.RC.ALL_GOOD
 
     def gather_builtin_cmds(self) -> None:
         # DEBUG: Load built-in commands time start
@@ -246,7 +246,7 @@ class CmdReslvr:
     def get_builtin_help(self, cmd: str) -> ugen.HelpObj | int:
         tmp = self.builtin_cmds.get(cmd)
         if tmp is None:
-            return uerr.ERR_BAD_CMD
+            return uerr.RC.BAD_CMD
         help_obj = tmp[2]
         return help_obj
 
@@ -261,7 +261,7 @@ class CmdReslvr:
             return tmp_mod
         cmd_mod = tmp_mod
         # validate_res = self.validate_cmd_mod(cmd_mod)
-        # if validate_res != uerr.ERR_ALL_GOOD:
+        # if validate_res != uerr.RC.ALL_GOOD:
         #     return validate_res
         help_obj = cmd_mod.HELP
         return help_obj
@@ -271,7 +271,7 @@ class CmdReslvr:
         # Built-in help objects, command specs and functions are assumed valid
         tmp = self.builtin_cmds.get(cmd)
         if tmp is None:
-            return uerr.ERR_BAD_CMD
+            return uerr.RC.BAD_CMD
         cmd_fn, cmd_spec, _ = tmp
         return cmd_fn, cmd_spec
 
@@ -286,7 +286,7 @@ class CmdReslvr:
             return tmp_mod
         cmd_mod = tmp_mod
         # validate_res = self.validate_cmd_mod(cmd_mod)
-        # if validate_res != uerr.ERR_ALL_GOOD:
+        # if validate_res != uerr.RC.ALL_GOOD:
         #     return validate_res
         cmd_spec = cmd_mod.CMD_SPEC
         cmd_fn = cmd_mod.run

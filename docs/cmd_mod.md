@@ -78,5 +78,5 @@ CMD_SPEC = ugen.CmdSpec(
 
 
 def run(data: ugen.CmdData) -> int:
-    return uerr.ERR_ALL_GOOD
+    return uerr.RC.ALL_GOOD
 ```

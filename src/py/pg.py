@@ -27,11 +27,11 @@ CMD_SPEC = ugen.CmdSpec(
 )
 
 ERR_MSG_MAP = {
-    uerr.ERR_FL_404     : "No such file",
-    uerr.ERR_PERM_DENIED: "Access denied",
-    uerr.ERR_IS_A_DIR   : "Is a directory",
-    uerr.ERR_OS_ERR     : "OS error",
-    uerr.ERR_DECODE_ERR : "Cannot decode file"
+    uerr.RC.FL_404     : "No such file",
+    uerr.RC.PERM_DENIED: "Access denied",
+    uerr.RC.IS_A_DIR   : "Is a directory",
+    uerr.RC.OS_ERR     : "OS error",
+    uerr.RC.DECODE_ERR : "Cannot decode file"
 }
 
 
@@ -74,19 +74,19 @@ def get_cntnt(pth: str) -> str | tuple[int, Exception]:
         with open(pth) as f:
             return f.read()
     except FileNotFoundError as e:
-        return (uerr.ERR_FL_404, e)
+        return (uerr.RC.FL_404, e)
     except PermissionError as e:
-        return (uerr.ERR_PERM_DENIED, e)
+        return (uerr.RC.PERM_DENIED, e)
     except IsADirectoryError as e:
-        return (uerr.ERR_IS_A_DIR, e)
+        return (uerr.RC.IS_A_DIR, e)
     except OSError as e:
-        return (uerr.ERR_OS_ERR, e)
+        return (uerr.RC.OS_ERR, e)
     except UnicodeDecodeError as e:
-        return (uerr.ERR_DECODE_ERR, e)
+        return (uerr.RC.DECODE_ERR, e)
 
 
 def run(data: ugen.CmdData) -> int:
-    err_code = uerr.ERR_ALL_GOOD
+    err_code = uerr.RC.ALL_GOOD
     txts = {}
     if data.stdin:
         txts[None] = data.stdin

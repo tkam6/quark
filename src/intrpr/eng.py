@@ -53,18 +53,18 @@ class Intrpr:
         ugen.warn_Q("Exercise caution when running untrusted commands")
 
         self.GET_CMD_ERR_MSG_MAP = {
-            uerr.ERR_BAD_CMD: "Bad command",
-            uerr.ERR_INV_CMD: "Invalid command file",
-            uerr.ERR_NO_CMD_FN: "Missing command function",
-            uerr.ERR_NO_CMD_SPEC: "Missing command spec",
-            uerr.ERR_NO_HELP_OBJ: "Missing help object",
-            uerr.ERR_UNCALLABLE_CMD_FN: "Uncallable command function",
-            uerr.ERR_INV_NUM_PARAMS: "Bad function argument count",
-            uerr.ERR_INV_CMD_SPEC: "Bad command spec",
-            uerr.ERR_INV_HELP_OBJ: "Bad help oject",
-            uerr.ERR_RECUR_ERR: "Recursion limit exceeded",
-            uerr.ERR_CMD_SYN_ERR: "Syntax error",
-            uerr.ERR_CANT_LD_CMD_MOD: "Load failed",
+            uerr.RC.BAD_CMD: "Bad command",
+            uerr.RC.INV_CMD: "Invalid command file",
+            uerr.RC.NO_CMD_FN: "Missing command function",
+            uerr.RC.NO_CMD_SPEC: "Missing command spec",
+            uerr.RC.NO_HELP_OBJ: "Missing help object",
+            uerr.RC.UNCALLABLE_CMD_FN: "Uncallable command function",
+            uerr.RC.INV_NUM_PARAMS: "Bad function argument count",
+            uerr.RC.INV_CMD_SPEC: "Bad command spec",
+            uerr.RC.INV_HELP_OBJ: "Bad help oject",
+            uerr.RC.RECUR_ERR: "Recursion limit exceeded",
+            uerr.RC.CMD_SYN_ERR: "Syntax error",
+            uerr.RC.CANT_LD_CMD_MOD: "Load failed",
         }
         self.usr_dir = os.path.expanduser("~")
         self.uid = str(os.getuid())
@@ -103,7 +103,7 @@ class Intrpr:
 
         self.intrpr_vars["_USR_DIR_"] = str(self.usr_dir)
         self.intrpr_vars["_PREV_CWD_"] = os.getcwd()
-        self.intrpr_vars["LAST_RET"] = uerr.ERR_ALL_GOOD
+        self.intrpr_vars["LAST_RET"] = uerr.RC.ALL_GOOD
 
         try:
             os.chdir(udeb.TMP_DIR)
@@ -216,7 +216,7 @@ class Intrpr:
         # DEBUG: Command resolution time start
         _t_cmd_resln = time.perf_counter_ns()
 
-        err_code = uerr.ERR_ALL_GOOD
+        err_code = uerr.RC.ALL_GOOD
         get_cmd_res = self.get_cmd(
             cmd_nm,
             self.ext_cached_cmds,
@@ -274,19 +274,19 @@ class Intrpr:
             excep = e
             exceps_raised = True
             if isinstance(e, RecursionError):
-                cmd_ret = uerr.ERR_RECUR_ERR
+                cmd_ret = uerr.RC.RECUR_ERR
             else:
-                cmd_ret = uerr.ERR_CMD_RNTIME_ERR
+                cmd_ret = uerr.RC.CMD_RNTIME_ERR
 
         if not isinstance(cmd_ret, int):
             ugen.crit_Q("Last command returned non-integer")
-            cmd_ret = uerr.ERR_CMD_RETD_NON_INT
+            cmd_ret = uerr.RC.CMD_RETD_NON_INT
         # 2 ** 31 = 2147483648
         elif not -2147483648 <= cmd_ret < 2147483648:
             ugen.crit_Q(
                 f"Command return value exceeds 32-bit signed integer limit: {cmd_ret}"
             )
-            cmd_ret = uerr.ERR_RET_INT_TOO_LARGE
+            cmd_ret = uerr.RC.RET_INT_TOO_LARGE
         # Pass data:
         # 1. Command return code
         # 2. If any exceptions were raised:
@@ -354,7 +354,7 @@ class Intrpr:
         stdout_obj: io.TextIOBase,
         stderr_obj: io.TextIOBase
     ) -> iint.CmdCompdObj:
-        err_code = uerr.ERR_ALL_GOOD
+        err_code = uerr.RC.ALL_GOOD
         pid = 0
 
         # It's assumed that cmd_src can only be one of two values, "external"
@@ -373,7 +373,7 @@ class Intrpr:
                         f"Too many open files; command '{data.cmd_nm}'",
                         exc_txt=tb.format_exc()
                     )
-                    err_code = uerr.ERR_TOO_MANY_OPEN_FLS
+                    err_code = uerr.RC.TOO_MANY_OPEN_FLS
                     return iint.CmdCompdObj(err_code=err_code)
                 raise
             # Child process; run in forked process
@@ -394,7 +394,7 @@ class Intrpr:
                 ugen.crit_Q(
                     "Failed to fork process; try re-running the command"
                 )
-                err_code = uerr.ERR_CANT_FORK_PROC
+                err_code = uerr.RC.CANT_FORK_PROC
             # Parent process
             else:
                 try:
@@ -410,11 +410,11 @@ class Intrpr:
                     # 4 bytes for command return code
                     ret_code = self.rd_and_unpack(rother, "!i", 4)
                     if ret_code is None:
-                        ret_code = uerr.ERR_UNPACK_FAIL
+                        ret_code = uerr.RC.UNPACK_FAIL
                     # 1 byte for data on if any exceptions were raised
                     exceps_raised = self.rd_and_unpack(rother, "!?", 1)
                     if exceps_raised is None:
-                        ret_code = uerr.ERR_UNPACK_FAIL
+                        ret_code = uerr.RC.UNPACK_FAIL
                     elif exceps_raised:
                         excep_wrap = self.retrieve_excep(rother)
                         excep_nm = excep_wrap.e.__class__.__name__
@@ -453,14 +453,14 @@ class Intrpr:
             try:
                 cmd_ret = self.rn_cmd_fn(cmd_fn, data)
             except RecursionError:
-                cmd_ret = uerr.ERR_RECUR_ERR
+                cmd_ret = uerr.RC.RECUR_ERR
                 ugen.crit_Q(
                     f"Recursion depth exceeded; command '{data.cmd_nm}'",
                     exc_txt=(f"Recursion depth exceeded; command '{data.cmd_nm}'\n"
                              f"{tb.format_exc()}")
                 )
             except Exception as e:
-                cmd_ret = uerr.ERR_CMD_RNTIME_ERR
+                cmd_ret = uerr.RC.CMD_RNTIME_ERR
                 ugen.crit_Q(
                     f"Uncaught exception in built-in command '{data.cmd_nm}': {e.__class__.__name__}",
                     exc_txt=(f"Uncaught exception in built-in command '{data.cmd_nm}'\n"
@@ -525,7 +525,7 @@ class Intrpr:
         if syn_chk_res:
             return syn_chk_res
 
-        err_code = uerr.ERR_ALL_GOOD
+        err_code = uerr.RC.ALL_GOOD
         skip = 0
         # Empty command, and cmd_expr will ALWAYS have one SimpCmd object in
         # simp_cmds list, even if the input line was empty
@@ -600,16 +600,16 @@ class Intrpr:
                     ugen.err_Q(
                         f"{err_msg_head}; is a directory: \"{redir_flnm}\" (pos {redir_param.start})"
                     )
-                    return uerr.ERR_IS_A_DIR
+                    return uerr.RC.IS_A_DIR
                 except PermissionError:
                     ugen.err_Q(
                         f"{err_msg_head}; access denied: \"{redir_flnm}\""
                     )
-                    return uerr.ERR_PERM_DENIED
+                    return uerr.RC.PERM_DENIED
                 except OSError as e:
                     # TODO: Change the error code later
                     ugen.err_Q(f"{err_msg_head}; OS error; {e.strerror}")
-                    return uerr.ERR_OS_ERR
+                    return uerr.RC.OS_ERR
                 stdout_obj = stdout_fl
                 skip += 1
                 if cmd_src == "built-in":
@@ -622,17 +622,17 @@ class Intrpr:
                     stderr_fl = open(redir_flnm.val, "w")
                 except IsADirectoryError:
                     ugen.err_Q(f"{err_msg_head}; is a directory: \"{redir_flnm}\"")
-                    return uerr.ERR_IS_A_DIR
+                    return uerr.RC.IS_A_DIR
                 except PermissionError:
                     ugen.err_Q(
                         f"{err_msg_head}; access denied: \"{redir_flnm}\""
                     )
-                    return uerr.ERR_PERM_DENIED
+                    return uerr.RC.PERM_DENIED
                 except OSError as e:
                     ugen.err_Q(
                         f"{err_msg_head}; OS error; {e.strerror}"
                     )
-                    return uerr.ERR_OS_ERR
+                    return uerr.RC.OS_ERR
                 stderr_obj = stderr_fl
                 skip += 1
                 if cmd_src == "built-in":
@@ -681,7 +681,7 @@ class Intrpr:
         return err_code
 
     def exec_cmd_seq(self, cmd_seq: past.CmdSeq):
-        err_code = uerr.ERR_ALL_GOOD
+        err_code = uerr.RC.ALL_GOOD
         # DEBUG: Full sequence execute time start
         _t_full_seq = time.perf_counter_ns()
 
@@ -727,29 +727,29 @@ class Intrpr:
                 ugen.err_Q(
                     f"Expected at least one parameter on the right of operator at pos {op.end}"
                 )
-                return uerr.ERR_EXPD_PARAM_RT_OP
+                return uerr.RC.EXPD_PARAM_RT_OP
             if len(r_simp_cmd) < 1:
                 print(op)
                 ugen.err_Q(
                     f"Missing parameter for operator '{op}' at pos {op.end}"
                 )
-                return uerr.ERR_EXPD_PARAM_RT_OP
+                return uerr.RC.EXPD_PARAM_RT_OP
             # Too many parameters on the right of STDOUT redirect operator
             if isinstance(op, past.RedirSTDOUT) and len(r_simp_cmd) > 1:
                 ugen.err_Q(
                     f"Unexpected parameter for STDOUT redirection at pos {r_simp_cmd.params[1].start}"
                 )
-                return uerr.ERR_UNEXPD_PARAM_STDOUT_REDIRN
+                return uerr.RC.UNEXPD_PARAM_STDOUT_REDIRN
             # Too many parameters on the right of STDERR redirect operator
             elif isinstance(op, past.RedirSTDERR) and len(r_simp_cmd) > 1:
                 ugen.err_Q(
                     f"Unexpected parameter for STDERR redirection at pos {r_simp_cmd.params[1].start}"
                 )
-                return uerr.ERR_UNEXPD_PARAM_STDOUT_REDIRN
+                return uerr.RC.UNEXPD_PARAM_STDOUT_REDIRN
 
             i += 1
 
-        return uerr.ERR_ALL_GOOD
+        return uerr.RC.ALL_GOOD
 
     def rn_cmd_fn(self, cmd_fn: TH_CmdFn, data: ugen.CmdData) -> int:
         """
@@ -764,7 +764,7 @@ class Intrpr:
         :returns: Integer error code.
         :rtype: int
         """
-        cmd_ret = uerr.ERR_ALL_GOOD
+        cmd_ret = uerr.RC.ALL_GOOD
 
         # DEBUG: Run command function time start
         _t_rn_cmd_fn = time.perf_counter_ns()
@@ -773,17 +773,17 @@ class Intrpr:
             cmd_ret = cmd_fn(data)
         # Variable type mismatch
         except ugen.InvVarTypErr as e:
-            cmd_ret = cmd_ret or uerr.ERR_ENV_VAR_INV_TYP
+            cmd_ret = cmd_ret or uerr.RC.ENV_VAR_INV_TYP
             ugen.err_Q(
                 f"Invalid variable type for '{e.var_nm}'; expected '{e.var_typ.__name__}', got '{e.got_typ.__name__}'"
             )
         # Invalid variable name
         except ugen.InvVarNmErr as e:
-            cmd_ret = cmd_ret or uerr.ERR_ENV_VAR_INV_NM
+            cmd_ret = cmd_ret or uerr.RC.ENV_VAR_INV_NM
             ugen.err_Q(f"Invalid variable name: '{e.var_nm}'")
         # Unknown variable
         except ugen.UnkVarErr as e:
-            cmd_ret = cmd_ret or uerr.ERR_ENV_UNK_VAR
+            cmd_ret = cmd_ret or uerr.RC.ENV_UNK_VAR
             ugen.err_Q(f"Unknown variable: '{e.var_nm}'")
 
         # DEBUG: Run command function time end

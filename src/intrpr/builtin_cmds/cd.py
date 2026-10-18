@@ -43,7 +43,7 @@ def actually_chg_dir(
     prn_dir: bool,
     intrpr_vars: "iint.IntrprTbl"
 ) -> int:
-    err_code = uerr.ERR_ALL_GOOD
+    err_code = uerr.RC.ALL_GOOD
 
     try:
         before = os.getcwd()
@@ -52,17 +52,17 @@ def actually_chg_dir(
         if prn_dir:
             ugen.write(pth + "\n")
     except FileNotFoundError:
-        err_code = uerr.ERR_DIR_404
+        err_code = uerr.RC.DIR_404
         ugen.err(f"No such directory: \"{pth}\"", nm=cmd_nm)
     except NotADirectoryError:
-        err_code = uerr.ERR_NOT_A_DIR
+        err_code = uerr.RC.NOT_A_DIR
         ugen.err(f"Not a directory: \"{pth}\"", nm=cmd_nm)
     except PermissionError:
-        err_code = uerr.ERR_PERM_DENIED
+        err_code = uerr.RC.PERM_DENIED
         ugen.err(f"Access denied: \"{pth}\"", nm=cmd_nm)
     # Don't think this is reachable, but let's be on the safer side
     except OSError as e:
-        err_code = uerr.ERR_OS_ERR
+        err_code = uerr.RC.OS_ERR
         ugen.err(f"OS error; {e.strerror}", nm=cmd_nm)
 
     return err_code
@@ -71,7 +71,7 @@ def actually_chg_dir(
 def run(data: ugen.CmdData) -> int:
     chg_to: pl.Path | str
 
-    err_code = uerr.ERR_ALL_GOOD
+    err_code = uerr.RC.ALL_GOOD
     chg_to_prev_cwd = False
     prn_dir = False
     mk_dirs = False
@@ -92,14 +92,14 @@ def run(data: ugen.CmdData) -> int:
             "Cannot change to previous and specified directory simultaneously",
             nm=data.cmd_nm
         )
-        return uerr.ERR_INV_USAGE
+        return uerr.RC.INV_USAGE
 
     if chg_to_prev_cwd and tmp_dir:
         ugen.err(
             "Cannot change to previous and temporary directory simultaneously",
             nm=data.cmd_nm
         )
-        return uerr.ERR_INV_USAGE
+        return uerr.RC.INV_USAGE
 
     # Change to previous directory option
     if chg_to_prev_cwd:
@@ -137,16 +137,16 @@ def run(data: ugen.CmdData) -> int:
                 f"Cannot make directory; File exists: \"{chg_to}\"",
                 nm=data.cmd_nm
             )
-            return uerr.ERR_FL_EXISTS
+            return uerr.RC.FL_EXISTS
         except PermissionError:
             ugen.err(
                 f"Cannot make directory; Access denied: \"{chg_to}\"",
                 nm=data.cmd_nm
             )
-            return uerr.ERR_PERM_DENIED
+            return uerr.RC.PERM_DENIED
         except OSError as e:
             ugen.err(f"OS error; {e.strerror}", nm=data.cmd_nm)
-            return uerr.ERR_OS_ERR
+            return uerr.RC.OS_ERR
 
     err_code = actually_chg_dir(data.cmd_nm, chg_to, prn_dir, data.intrpr_vars)
     return err_code

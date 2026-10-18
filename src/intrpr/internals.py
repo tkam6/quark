@@ -74,10 +74,10 @@ class Snoo:
             if flag in ("-C", "--no-crash"):
                 crash = False
         if crash:
-            ugen.fatal_Q("Beauty overload", ret=uerr.ERR_MP_BEAUTY_OVERLD)
+            ugen.fatal_Q("Beauty overload", ret=uerr.RC.MP_BEAUTY_OVERLD)
         else:
             ugen.crit_Q("Beauty overload")
-            return uerr.ERR_BEAUTY_OVERLD
+            return uerr.RC.BEAUTY_OVERLD
 
 
 def catch_exceps_env_tbl(f: ty.Callable[..., ty.Any]) -> ty.Callable[..., ty.Any]:
@@ -88,7 +88,7 @@ def catch_exceps_env_tbl(f: ty.Callable[..., ty.Any]) -> ty.Callable[..., ty.Any
         except st.error:
             ugen.fatal_Q(
                 "Corrupted shared memory; cannot continue execution",
-                ret=uerr.ERR_CORRUPTED_ENV_TBL
+                ret=uerr.RC.CORRUPTED_ENV_TBL
             )
         except ugen.EnvKeyTooLarge as e:
             key = e.offending_key

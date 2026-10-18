@@ -1,3 +1,5 @@
+import enum
+
 iota_cntr = 0
 def iota(set_val: int | None = None):
     global iota_cntr
@@ -8,88 +10,90 @@ def iota(set_val: int | None = None):
     return tmp
 
 
-ERR_ALL_GOOD = iota(0)
-ERR_FALSE = iota()
-# MAIN PROGRAM
-ERR_MP_EXPD_VAL_OPT = iota(2)
-ERR_MP_UNK_TOK = iota()
-ERR_MP_INV_VAL = iota()
-ERR_MP_BEAUTY_OVERLD = iota()
+class RC(enum.IntEnum):
+    ALL_GOOD = enum.auto(0)
+    FALSE = enum.auto()
 
-ERR_UNK_ERR = iota(10)
-ERR_UNK_FATAL = iota()
+    # MAIN PROGRAM
+    MP_EXPD_VAL_OPT = enum.auto(2)
+    MP_UNK_TOK = enum.auto()
+    MP_INV_VAL = enum.auto()
+    MP_BEAUTY_OVERLD = enum.auto()
 
-ERR_BEAUTY_OVERLD = iota(50)
+    UNK_ERR = enum.auto(10)
+    UNK_FATAL = enum.auto()
 
-# PARSING ERRORS
-ERR_NO_CLOSING_QUOTE = iota(100)
-ERR_LONE_B_SLASH = iota()
-ERR_UNRECOGD_CMD_SEPR = iota()
+    BEAUTY_OVERLD = enum.auto(50)
 
-# INTERPRETER ERRORS
-ERR_BAD_CMD = iota(200)
-ERR_INV_CMD = iota()
-ERR_NO_CMD_FN = iota()
-ERR_NO_CMD_SPEC = iota()
-ERR_NO_HELP_OBJ = iota()
-ERR_UNCALLABLE_CMD_FN = iota()
-ERR_INV_NUM_PARAMS = iota()
-ERR_INV_CMD_SPEC = iota()
-ERR_INV_HELP_OBJ = iota()
-ERR_CMD_SYN_ERR = iota()
-ERR_CANT_LD_CMD_MOD = iota()
-ERR_CANT_FORK_PROC = iota()
-ERR_EXPD_VAL_OPT = iota()
-ERR_EXPD_SUB_CMD = iota()
-ERR_INV_SUB_CMD = iota()
-ERR_INSUFF_ARGS = iota()
-ERR_UNEXPD_ARGS = iota()
-ERR_INV_OPTS_FLAGS = iota()
-ERR_RECUR_ERR = iota()
-ERR_CMD_RNTIME_ERR = iota()
-ERR_CMD_SYS_EXIT = iota()
-ERR_UNPACK_FAIL = iota()
-ERR_CMD_RETD_NON_INT = iota()
-ERR_RET_INT_TOO_LARGE = iota()
-ERR_KB_INTERR = iota()
-ERR_CMD_STATUS_UNPACK = iota()
-ERR_UNEXPD_PARAM_STDOUT_REDIRN = iota()
-ERR_UNEXPD_PARAM_STDERR_REDIRN = iota()
-ERR_EXPD_FLNM_STDOUT_REDIRN = iota()
-ERR_EXPD_PARAM_RT_OP = iota()
-ERR_TOO_MANY_OPEN_FLS = iota()
-ERR_NOT_IMPLMTD = iota()
+    # PARSING ERRORS
+    NO_CLOSING_QUOTE = enum.auto(100)
+    LONE_B_SLASH = enum.auto()
+    UNRECOGD_CMD_SEPR = enum.auto()
 
-# ENVIRONMENT VARIABLE CODES
-ERR_ENV_VAR_INV_TYP = iota(300)
-ERR_ENV_VAR_INV_NM = iota()
-ERR_ENV_UNK_VAR = iota()
-ERR_CORRUPTED_ENV_TBL = iota()
+    # INTERPRETER ERRORS
+    BAD_CMD = enum.auto(200)
+    INV_CMD = enum.auto()
+    NO_CMD_FN = enum.auto()
+    NO_CMD_SPEC = enum.auto()
+    NO_HELP_OBJ = enum.auto()
+    UNCALLABLE_CMD_FN = enum.auto()
+    INV_NUM_PARAMS = enum.auto()
+    INV_CMD_SPEC = enum.auto()
+    INV_HELP_OBJ = enum.auto()
+    CMD_SYN_ERR = enum.auto()
+    CANT_LD_CMD_MOD = enum.auto()
+    CANT_FORK_PROC = enum.auto()
+    EXPD_VAL_OPT = enum.auto()
+    EXPD_SUB_CMD = enum.auto()
+    INV_SUB_CMD = enum.auto()
+    INSUFF_ARGS = enum.auto()
+    UNEXPD_ARGS = enum.auto()
+    INV_OPTS_FLAGS = enum.auto()
+    RECUR_ERR = enum.auto()
+    CMD_RNTIME_ERR = enum.auto()
+    CMD_SYS_EXIT = enum.auto()
+    UNPACK_FAIL = enum.auto()
+    CMD_RETD_NON_INT = enum.auto()
+    RET_INT_TOO_LARGE = enum.auto()
+    KB_INTERR = enum.auto()
+    CMD_STATUS_UNPACK = enum.auto()
+    UNEXPD_PARAM_STDOUT_REDIRN = enum.auto()
+    UNEXPD_PARAM_STDREDIRN = enum.auto()
+    EXPD_FLNM_STDOUT_REDIRN = enum.auto()
+    EXPD_PARAM_RT_OP = enum.auto()
+    TOO_MANY_OPEN_FLS = enum.auto()
+    NOT_IMPLMTD = enum.auto()
 
-# COMMON COMMAND ERRORS
-ERR_INV_USAGE = iota(400)
-ERR_OS_ERR = iota()
-ERR_FL_404 = iota()
-ERR_DIR_404 = iota()
-ERR_FL_DIR_404 = iota()
-ERR_FL_EXISTS = iota()
-ERR_DIR_EXISTS = iota()
-ERR_FL_DIR_EXISTS = iota()
-ERR_IS_A_FL = iota()
-ERR_IS_A_DIR = iota()
-ERR_NOT_A_FL = iota()
-ERR_NOT_A_DIR = iota()
-ERR_NO_SPACE_ON_DEV = iota()
-ERR_PERM_DENIED = iota()
-ERR_EXPD_STDIN_OR_ARGS = iota()
-ERR_CANT_CAST_VAL = iota()
-ERR_INV_OPT_FMT = iota()
-ERR_INV_VAL_OPT = iota()
-ERR_DECODE_ERR = iota()
-ERR_INT_OVERFLOW = iota()
+    # ENVIRONMENT VARIABLE CODES
+    ENV_VAR_INV_TYP = enum.auto(300)
+    ENV_VAR_INV_NM = enum.auto()
+    ENV_UNK_VAR = enum.auto()
+    CORRUPTED_ENV_TBL = enum.auto()
 
-# CONFIG ERRORS
-ERR_CFG_INV_TYP = iota(500)
+    # COMMON COMMAND ERRORS
+    INV_USAGE = enum.auto(400)
+    OS_ERR = enum.auto()
+    FL_404 = enum.auto()
+    DIR_404 = enum.auto()
+    FL_DIR_404 = enum.auto()
+    FL_EXISTS = enum.auto()
+    DIR_EXISTS = enum.auto()
+    FL_DIR_EXISTS = enum.auto()
+    IS_A_FL = enum.auto()
+    IS_A_DIR = enum.auto()
+    NOT_A_FL = enum.auto()
+    NOT_A_DIR = enum.auto()
+    NO_SPACE_ON_DEV = enum.auto()
+    PERM_DENIED = enum.auto()
+    EXPD_STDIN_OR_ARGS = enum.auto()
+    CANT_CAST_VAL = enum.auto()
+    INV_OPT_FMT = enum.auto()
+    INV_VAL_OPT = enum.auto()
+    DECODE_ERR = enum.auto()
+    INT_OVERFLOW = enum.auto()
 
-# TMP
-ERR_PLACEHOLDER = iota(10000)
+    # CONFIG ERRORS
+    CFG_INV_TYP = enum.auto(500)
+
+    # TMP
+    PLACEHOLDER = enum.auto(10000)

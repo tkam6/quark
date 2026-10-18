@@ -29,7 +29,7 @@ ERASE_SAVED_LNS = "\x1b[3J"
 
 
 def run(data: ugen.CmdSpec) -> int:
-    err_code = uerr.ERR_ALL_GOOD
+    err_code = uerr.RC.ALL_GOOD
     keep_scrollback = "-k" in data.flags or "--keep-scrollback" in data.flags
 
     ugen.write(

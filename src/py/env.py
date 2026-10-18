@@ -62,7 +62,7 @@ class Out(ty.NamedTuple):
 
 
 def run(data: ugen.CmdData) -> int:
-    err_code = uerr.ERR_ALL_GOOD
+    err_code = uerr.RC.ALL_GOOD
     raw_val = False
     op_buf = []
     max_nm_len = 0
@@ -83,7 +83,7 @@ def run(data: ugen.CmdData) -> int:
     elif data.sub_cmd == "get":
         for arg in data.args:
             if arg not in data.env_vars:
-                err_code = err_code or uerr.ERR_ENV_UNK_VAR
+                err_code = err_code or uerr.RC.ENV_UNK_VAR
                 op_buf.append(Err(f"No such variable: {arg}"))
                 continue
             val = data.env_vars[arg]
@@ -96,7 +96,7 @@ def run(data: ugen.CmdData) -> int:
     elif data.sub_cmd == "rm":
         for arg in data.args:
             if arg not in data.env_vars:
-                err_code = err_code or uerr.ERR_ENV_UNK_VAR
+                err_code = err_code or uerr.RC.ENV_UNK_VAR
                 op_buf.append(Err(f"No such variable: '{arg}'"))
                 continue
             data.env_vars.rm(arg)

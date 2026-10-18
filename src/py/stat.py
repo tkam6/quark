@@ -63,7 +63,7 @@ PERM_LOOKUP_NORM = {
 
 
 def run(data: ugen.CmdData) -> int:
-    err_code = uerr.ERR_ALL_GOOD
+    err_code = uerr.RC.ALL_GOOD
     len_args = len(data.args)
     json_indent = 2
     write_json = False
@@ -91,7 +91,7 @@ def run(data: ugen.CmdData) -> int:
                     f"Cannot cast to int for '{opt}': '{val}'",
                     nm=data.cmd_nm
                 )
-                return uerr.ERR_CANT_CAST_VAL
+                return uerr.RC.CANT_CAST_VAL
 
     if iso or write_json:
         fmt_str = r"%Y-%m-%d %H:%M:%S"
@@ -138,15 +138,15 @@ def run(data: ugen.CmdData) -> int:
         try:
             item_stat = pth_obj.stat(follow_symlinks=flw_symlnks)
         except FileNotFoundError:
-            err_code = err_code or uerr.ERR_FL_DIR_404
+            err_code = err_code or uerr.RC.FL_DIR_404
             ugen.err(f"Cannot locate item: \"{arg}\"", nm=data.cmd_nm)
             continue
         except PermissionError:
-            err_code = err_code or uerr.ERR_PERM_DENIED
+            err_code = err_code or uerr.RC.PERM_DENIED
             ugen.err(f"Access denied: \"{arg}\"", nm=data.cmd_nm)
             continue
         except OSError as e:
-            err_code = err_code or uerr.ERR_OS_ERR
+            err_code = err_code or uerr.RC.OS_ERR
             ugen.err(f"OS error; {e.strerror}", nm=data.cmd_nm)
             continue
 
@@ -233,7 +233,7 @@ def run(data: ugen.CmdData) -> int:
                 ).splitlines()
             except OverflowError:
                 ugen.err(f"Indent value too large: {json_indent}")
-                err_code = err_code or uerr.ERR_INT_OVERFLOW
+                err_code = err_code or uerr.RC.INT_OVERFLOW
                 return err_code
             ugen.write(
                 # No idea why this first indent is needed. It should've been

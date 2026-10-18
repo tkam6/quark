@@ -27,7 +27,7 @@ CMD_SPEC = ugen.CmdSpec(
 
 
 def run(data: ugen.CmdData) -> int:
-    exit_code = uerr.ERR_ALL_GOOD
+    exit_code = uerr.RC.ALL_GOOD
     exit_txt = not ("-T" in data.flags or "--no-exit-text" in data.flags)
 
     if data.args:
@@ -36,10 +36,10 @@ def run(data: ugen.CmdData) -> int:
             exit_code = int(exit_code)
         except ValueError:
             ugen.err(f"Cannot cast to int: '{exit_code}'", nm=data.cmd_nm)
-            return uerr.ERR_CANT_CAST_VAL
+            return uerr.RC.CANT_CAST_VAL
         except OverflowError:
             ugen.err("Integer overflow", nm=data.cmd_nm)
-            return uerr.ERR_INT_OVERFLOW
+            return uerr.RC.INT_OVERFLOW
 
     if exit_txt:
         ugen.write("bye\n")

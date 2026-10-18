@@ -42,23 +42,23 @@ def ld_hist_fl(cmd_nm: str, mode: str = "r") -> "io.TextIOBase | int":
         return open(uconst.HIST_FL, mode)
     except FileNotFoundError:
         ugen.err(f"No history file: \"{uconst.HIST_FL}\"", nm=cmd_nm)
-        return uerr.ERR_FL_404
+        return uerr.RC.FL_404
     except PermissionError:
         ugen.err(f"Access denied: \"{uconst.HIST_FL}\"", nm=cmd_nm)
-        return uerr.ERR_PERM_DENIED
+        return uerr.RC.PERM_DENIED
     except IsADirectoryError:
         ugen.err(f"Is a directory: \"{uconst.HIST_FL}\"", nm=cmd_nm)
-        return uerr.ERR_IS_A_DIR
+        return uerr.RC.IS_A_DIR
     except OSError as e:
         ugen.err(f"OS error; {e.strerror}", nm=cmd_nm)
-        return uerr.ERR_OS_ERR
+        return uerr.RC.OS_ERR
 
 
 ERR_NO_FLAGS = 1000
 
 
 def run(data: ugen.CmdData) -> int:
-    return uerr.ERR_NOT_IMPLMTD
+    return uerr.RC.NOT_IMPLMTD
     clear_hist = "-c" in data.flags or "--clear" in data.flags
     rm_dupls = "-d" in data.flags or "--remove-duplicates" in data.flags
     get_sz = "-s" in data.flags or "--size" in data.flags
@@ -102,4 +102,4 @@ def run(data: ugen.CmdData) -> int:
         ugen.write(f.read())
         f.close()
 
-    return uerr.ERR_ALL_GOOD
+    return uerr.RC.ALL_GOOD

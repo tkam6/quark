@@ -102,8 +102,8 @@ def parse_argv(cfg: MainProgParsed, passed_params: list[str]) -> MainProgParsed:
             continue
         if param not in all_flags_opts:
             if [i for i in param[1 :] if f"-{i}" not in all_flags]:
-                ugen.fatal_Q(f"Unknown parameter: '{param}'", ret=uerr.ERR_MP_UNK_TOK)
-                sys.exit(uerr.ERR_MP_UNK_TOK)
+                ugen.fatal_Q(f"Unknown parameter: '{param}'", ret=uerr.RC.MP_UNK_TOK)
+                sys.exit(uerr.RC.MP_UNK_TOK)
             params[idx : idx + 1] = list(param[1 :])
             continue
 
@@ -123,17 +123,17 @@ def parse_argv(cfg: MainProgParsed, passed_params: list[str]) -> MainProgParsed:
                 cfg.log_lvl = leng.LogLvls.ERR
         elif param in FLAGS["HELP"]:
             ugen.write("\n".join(HELP_TXT).expandtabs(2))
-            sys.exit(uerr.ERR_ALL_GOOD)
+            sys.exit(uerr.RC.ALL_GOOD)
         # Options after this, hence check if value is present
         elif idx >= len(params) - 1:
             ugen.err_Q(f"Expected value for '{param}'")
-            sys.exit(uerr.ERR_MP_EXPD_VAL_OPT)
+            sys.exit(uerr.RC.MP_EXPD_VAL_OPT)
         # Options
         elif param in OPTS["LINE-MODE"]:
             val = passed_params[idx + 1]
             if val not in ("emacs", "vi", "raw"):
                 ugen.err_Q(f"Invalid value for '{param}': '{val}'")
-                sys.exit(uerr.ERR_MP_INV_VAL)
+                sys.exit(uerr.RC.MP_INV_VAL)
             cfg.ln_mode = val
             idx += 1
         elif param in OPTS["DEBUG-TIME-UNIT"]:
@@ -148,12 +148,12 @@ def parse_argv(cfg: MainProgParsed, passed_params: list[str]) -> MainProgParsed:
                 cfg.debug_time_expo = 9
             else:
                 ugen.err_Q(f"Invalid value for '{param}': '{val}'")
-                sys.exit(uerr.ERR_MP_INV_VAL)
+                sys.exit(uerr.RC.MP_INV_VAL)
             idx += 1
         # Not needed, but let it be there
         else:
             ugen.err_Q(f"Unknown parameter: '{param}'")
-            sys.exit(uerr.ERR_MP_UNK_TOK)
+            sys.exit(uerr.RC.MP_UNK_TOK)
 
         idx += 1
 
@@ -161,7 +161,7 @@ def parse_argv(cfg: MainProgParsed, passed_params: list[str]) -> MainProgParsed:
     if not (MIN_ARGS <= args_len <= MAX_ARGS):
         ugen.fatal_Q(
             f"Argument {"underflow" if MIN_ARGS < args_len else "overflow"}: {args_len} not in [{MIN_ARGS}, {MAX_ARGS}]",
-            ret=uerr.ERR_INSUFF_ARGS if MIN_ARGS < args_len else uerr.ERR_UNEXPD_ARGS,
+            ret=uerr.RC.INSUFF_ARGS if MIN_ARGS < args_len else uerr.RC.UNEXPD_ARGS,
         )
 
     return cfg
@@ -215,7 +215,7 @@ def main() -> None:
         tb.print_exc()
         ugen.fatal_Q(
             f"Interpreter init failed; {e.__class__.__name__}",
-            uerr.ERR_UNK_FATAL,
+            uerr.RC.UNK_FATAL,
             exc_txt=tb.format_exc(),
         )
 
@@ -238,23 +238,23 @@ def main() -> None:
 
         # ^c on a built-in command
         except KeyboardInterrupt:
-            intrpr.intrpr_vars["LAST_RET"] = uerr.ERR_KB_INTERR
+            intrpr.intrpr_vars["LAST_RET"] = uerr.RC.KB_INTERR
             ugen.write("\n")
 
         # ^c on an external command
         except ugen.KeyboardInterruptWPrevileges as e:
-            intrpr.intrpr_vars["LAST_RET"] = uerr.ERR_KB_INTERR
+            intrpr.intrpr_vars["LAST_RET"] = uerr.RC.KB_INTERR
             os.kill(e.child_pid, sig.SIGKILL)
             ugen.write("\n")
 
         except EOFError:
             ugen.write("\nbye\n")
-            sys.exit(uerr.ERR_ALL_GOOD)
+            sys.exit(uerr.RC.ALL_GOOD)
 
         except Exception as e:
             ugen.fatal_Q(
                 f"{e.__class__.__name__} in main interpreter loop\n{e}",
-                uerr.ERR_UNK_FATAL,
+                uerr.RC.UNK_FATAL,
                 exc_txt=tb.format_exc()
             )
 

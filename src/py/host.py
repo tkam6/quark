@@ -28,4 +28,4 @@ CMD_SPEC = ugen.CmdSpec(
 
 def run(data: ugen.CmdData) -> int:
     ugen.write(socket.getfqdn() + "\n")
-    return uerr.ERR_ALL_GOOD
+    return uerr.RC.ALL_GOOD

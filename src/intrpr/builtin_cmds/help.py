@@ -39,15 +39,15 @@ CMD_SPEC = ugen.CmdSpec(
 
 ERR_NO_SUCH_CMD = 1000
 ERR_MSG_MAP = {
-    uerr.ERR_BAD_CMD: "No such command",
-    uerr.ERR_NO_HELP_OBJ: "No help object",
-    uerr.ERR_INV_HELP_OBJ: "Invalid help object",
-    uerr.ERR_NO_CMD_FN: "No command function",
-    uerr.ERR_INV_NUM_PARAMS: "Invalid command function",
-    uerr.ERR_NO_CMD_SPEC: "No command spec",
-    uerr.ERR_INV_CMD_SPEC: "Invalid command spec",
-    uerr.ERR_CANT_LD_CMD_MOD: "Could not load command module",
-    uerr.ERR_CMD_SYN_ERR: "Syntax error in command module",
+    uerr.RC.BAD_CMD: "No such command",
+    uerr.RC.NO_HELP_OBJ: "No help object",
+    uerr.RC.INV_HELP_OBJ: "Invalid help object",
+    uerr.RC.NO_CMD_FN: "No command function",
+    uerr.RC.INV_NUM_PARAMS: "Invalid command function",
+    uerr.RC.NO_CMD_SPEC: "No command spec",
+    uerr.RC.INV_CMD_SPEC: "Invalid command spec",
+    uerr.RC.CANT_LD_CMD_MOD: "Could not load command module",
+    uerr.RC.CMD_SYN_ERR: "Syntax error in command module",
 }
 
 
@@ -171,7 +171,7 @@ def get_detailed_help(
 def run(data: ugen.CmdData) -> int:
     op_buf: list[Out | Err]
 
-    err_code = uerr.ERR_ALL_GOOD
+    err_code = uerr.RC.ALL_GOOD
     cmd_reslvr = data.cmd_reslvr
     all_cmds = False
     ext_cmds = False
@@ -187,13 +187,13 @@ def run(data: ugen.CmdData) -> int:
             "Cannot use all or external command flags for detailed help",
             nm=data.cmd_nm
         )
-        return uerr.ERR_INV_USAGE
+        return uerr.RC.INV_USAGE
     if all_cmds and ext_cmds:
         ugen.err(
             "Cannot use all and external command flags simultaneously",
             nm=data.cmd_nm
         )
-        return uerr.ERR_INV_USAGE
+        return uerr.RC.INV_USAGE
 
     op_buf = []
     max_arg_len = 0
@@ -233,19 +233,19 @@ def run(data: ugen.CmdData) -> int:
                     pths
                 )
                 if isinstance(retd, int):
-                    # If there was no help object (uerr.ERR_NO_HELP_OBJ), don't
+                    # If there was no help object (uerr.RC.NO_HELP_OBJ), don't
                     # report, as this is the listing of all summaries
-                    if retd == uerr.ERR_NO_HELP_OBJ:
+                    if retd == uerr.RC.NO_HELP_OBJ:
                         pass
-                    elif retd == uerr.ERR_INV_HELP_OBJ:
+                    elif retd == uerr.RC.INV_HELP_OBJ:
                         op_buf.append(Err(
                             f"Invalid help object: '{cmd_nm}'",
-                            uerr.ERR_INV_HELP_OBJ
+                            uerr.RC.INV_HELP_OBJ
                         ))
-                    elif retd == uerr.ERR_CANT_LD_CMD_MOD:
+                    elif retd == uerr.RC.CANT_LD_CMD_MOD:
                         op_buf.append(Err(
                             f"Could not load command module: '{cmd_nm}'",
-                            uerr.ERR_CANT_LD_CMD_MOD
+                            uerr.RC.CANT_LD_CMD_MOD
                         ))
                     continue
 

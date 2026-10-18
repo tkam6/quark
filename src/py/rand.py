@@ -40,7 +40,7 @@ def hdl_rng_diff_typs(opt: str, val: str, cast_fns: tuple[type]) \
         -> tuple[ty.Any] | int:
     split_val = val.split(",")
     if len(split_val) != 2:
-        return uerr.ERR_INV_OPT_FMT
+        return uerr.RC.INV_OPT_FMT
 
     for cast_fn in cast_fns:
         try:
@@ -50,13 +50,13 @@ def hdl_rng_diff_typs(opt: str, val: str, cast_fns: tuple[type]) \
         except ValueError:
             continue
     else:
-        return uerr.ERR_CANT_CAST_VAL
+        return uerr.RC.CANT_CAST_VAL
 
     return (min_num, max_num)
 
 
 def run(data: ugen.CmdData) -> int:
-    err_code = uerr.ERR_ALL_GOOD
+    err_code = uerr.RC.ALL_GOOD
     valid_rng_typs = (int, float)
     rand_int = False
     round_to = math.inf
@@ -78,19 +78,19 @@ def run(data: ugen.CmdData) -> int:
                     f"Cannot cast to int for option '{opt}': '{val}'",
                     nm=data.cmd_nm
                 )
-                return uerr.ERR_CANT_CAST_VAL
+                return uerr.RC.CANT_CAST_VAL
 
         # Range specifier option
         elif opt in ("-r", "--range"):
             rng = hdl_rng_diff_typs(opt, val, valid_rng_typs)
             if isinstance(rng, int):
-                if rng == uerr.ERR_INV_OPT_FMT:
+                if rng == uerr.RC.INV_OPT_FMT:
                     ugen.err(
                         f"Invalid value for option '{opt}': '{val}'",
                         nm=data.cmd_nm
                     )
                     return rng
-                elif rng == uerr.ERR_CANT_CAST_VAL:
+                elif rng == uerr.RC.CANT_CAST_VAL:
                     ugen.err(
                         f"Expected parts of {' or '.join(i.__name__ for i in valid_rng_typs)} for '{opt}'",
                         nm=data.cmd_nm
@@ -108,7 +108,7 @@ def run(data: ugen.CmdData) -> int:
         round_to_is_inf = math.isinf(round_to)
     except OverflowError:
         ugen.err("Round off overflow: int too big", nm=data.cmd_nm)
-        return uerr.ERR_INT_OVERFLOW
+        return uerr.RC.INT_OVERFLOW
 
     if not round_to_is_inf and rand_int:
         ugen.err("Cannot round integer random numbers", nm=data.cmd_nm)

@@ -65,7 +65,7 @@ def set_vars_helper(
     var_val: str,
     intrpr_vars: "iint.IntrprTbl"
 ) -> int:
-    err_code = uerr.ERR_ALL_GOOD
+    err_code = uerr.RC.ALL_GOOD
 
     # If no 3rd argument, type is assumed str, and var_val remains the same
     # 3rd argument passed; type was specified as "None"
@@ -97,23 +97,23 @@ def set_vars_helper(
     try:
         intrpr_vars[var_nm] = var_val
     except ugen.InvVarTypErr:
-        err_code = uerr.ERR_ENV_VAR_INV_TYP
+        err_code = uerr.RC.ENV_VAR_INV_TYP
         ugen.err(
             f"Invalid type for '{var_nm}': '{var_val.__class__.__name__}'",
             nm=cmd_nm,
         )
     except ugen.InvVarNmErr:
-        err_code = uerr.ERR_ENV_VAR_INV_NM
+        err_code = uerr.RC.ENV_VAR_INV_NM
         ugen.err(f"Invalid variable name: '{var_nm}'", nm=cmd_nm)
     except ugen.UnkVarErr:
-        err_code = uerr.ERR_ENV_UNK_VAR
+        err_code = uerr.RC.ENV_UNK_VAR
         ugen.err(f"Unknown variable: '{var_nm}'", nm=cmd_nm)
 
     return err_code
 
 
 def run(data: ugen.CmdData) -> int:
-    err_code = uerr.ERR_ALL_GOOD
+    err_code = uerr.RC.ALL_GOOD
     repr_val = False
 
     for flag in data.flags:
@@ -139,7 +139,7 @@ def run(data: ugen.CmdData) -> int:
         for arg in data.args:
             if arg not in data.intrpr_vars:
                 ugen.err(f"No such variable: '{arg}'", nm=data.cmd_nm)
-                err_code = err_code or uerr.ERR_ENV_UNK_VAR
+                err_code = err_code or uerr.RC.ENV_UNK_VAR
                 continue
             fmted_arg = ugen.S.fmt(arg, data.is_tty, ugen.S.green_4)
             val = data.intrpr_vars[arg]
@@ -168,7 +168,7 @@ def run(data: ugen.CmdData) -> int:
         for arg in data.args:
             if arg not in data.intrpr_vars:
                 ugen.err(f"No such variable: '{arg}'", nm=data.cmd_nm)
-                err_code = err_code or uerr.ERR_ENV_UNK_VAR
+                err_code = err_code or uerr.RC.ENV_UNK_VAR
                 continue
             try:
                 data.intrpr_vars.pop(arg)

@@ -29,7 +29,7 @@ ERR_INV_VAL_FOR_TYP = 1001
 
 
 def run(data: ugen.CmdData) -> int:
-    err_code = uerr.ERR_ALL_GOOD
+    err_code = uerr.RC.ALL_GOOD
     prompt = ""
     single_chr = False
     ident = data.args[0]

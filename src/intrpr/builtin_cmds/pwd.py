@@ -27,13 +27,13 @@ CMD_SPEC = ugen.CmdSpec(
 
 
 def run(data: ugen.CmdData) -> int:
-    err_code = uerr.ERR_ALL_GOOD
+    err_code = uerr.RC.ALL_GOOD
 
     try:
         ugen.write(os.getcwd() + "\n")
     # Don't know if this is possible... but just in case
     except PermissionError:
-        err_code = uerr.ERR_PERM_DENIED
+        err_code = uerr.RC.PERM_DENIED
         ugen.err("Access denied", nm=data.cmd_nm)
 
     return err_code

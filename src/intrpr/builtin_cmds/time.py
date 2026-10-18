@@ -39,7 +39,7 @@ EXPO_UNIT_MAP = {
 
 
 def run(data: ugen.CmdData) -> int:
-    err_code = uerr.ERR_ALL_GOOD
+    err_code = uerr.RC.ALL_GOOD
     expo = 3
 
     for opt, val in data.opts.items():
@@ -51,7 +51,7 @@ def run(data: ugen.CmdData) -> int:
                     f"Cannot cast to int (option {opt}): '{val}'",
                     nm=data.cmd_nm
                  )
-                return uerr.ERR_CANT_CAST_VAL
+                return uerr.RC.CANT_CAST_VAL
             expo = int(val)
             if expo not in range(10):
                 ugen.err(

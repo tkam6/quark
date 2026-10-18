@@ -24,7 +24,7 @@ CMD_SPEC = ugen.CmdSpec(
 
 
 def run(data: ugen.CmdData) -> int:
-    err_code = uerr.ERR_ALL_GOOD
+    err_code = uerr.RC.ALL_GOOD
     ln_nums = "-l" in data.flags or "--line-numbers" in data.flags
 
     for arg in data.args:
@@ -33,23 +33,23 @@ def run(data: ugen.CmdData) -> int:
             with open(fl) as f:
                 fl_cntnt = f.read()
         except FileNotFoundError:
-            err_code = err_code or uerr.ERR_FL_404
+            err_code = err_code or uerr.RC.FL_404
             ugen.err(f"No such file: \"{arg}\"", nm=data.cmd_nm)
             continue
         except PermissionError:
-            err_code = err_code or uerr.ERR_PERM_DENIED
+            err_code = err_code or uerr.RC.PERM_DENIED
             ugen.err(f"Access denied: \"{arg}\"", nm=data.cmd_nm)
             continue
         except IsADirectoryError:
-            err_code = err_code or uerr.ERR_IS_A_DIR
+            err_code = err_code or uerr.RC.IS_A_DIR
             ugen.err(f"Is a directory: \"{arg}\"", nm=data.cmd_nm)
             continue
         except UnicodeDecodeError:
-            err_code = err_code or uerr.ERR_DECODE_ERR
+            err_code = err_code or uerr.RC.DECODE_ERR
             ugen.err(f"Cannot decode file: \"{arg}\"", nm=data.cmd_nm)
             continue
         except OSError as e:
-            err_code = err_code or uerr.ERR_OS_ERR
+            err_code = err_code or uerr.RC.OS_ERR
             ugen.err(f"OS error; {e.strerror}", nm=data.cmd_nm)
             continue
 

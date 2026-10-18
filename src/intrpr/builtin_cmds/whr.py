@@ -62,7 +62,7 @@ def is_valid_cmd_mod(mod: ty.Any) -> bool:
 def run(data: ugen.CmdData) -> int:
     op_buf: list[Out | Err]
 
-    err_code = uerr.ERR_ALL_GOOD
+    err_code = uerr.RC.ALL_GOOD
     dir_pths = data.intrpr_vars["PTH"]
     show_all = False
     short_op = False

@@ -57,7 +57,7 @@ ERR_UNK_ALIAS = 1001
 def run(data: ugen.CmdData) -> int:
     to_write: list[tuple[str, str]]
 
-    err_code = uerr.ERR_ALL_GOOD
+    err_code = uerr.RC.ALL_GOOD
     to_write = []
     max_len = 0
     try:
@@ -132,13 +132,13 @@ def run(data: ugen.CmdData) -> int:
                 f"Insufficient arguments; expected 2 args after subcommand, got {len(data.args)}",
                 nm=data.cmd_nm
             )
-            return uerr.ERR_INSUFF_ARGS
+            return uerr.RC.INSUFF_ARGS
         elif len(data.args) > 2:
             ugen.err(
                 f"Unexpected arguments; expected 2 after subcommand, got {len(data.args)}",
                 nm=data.cmd_nm
             )
-            return uerr.ERR_UNEXPD_ARGS
+            return uerr.RC.UNEXPD_ARGS
         alias_dict[data.args[0]] = data.args[1]
         data.intrpr_vars["ALIASES"] = alias_dict
 

@@ -89,11 +89,11 @@ exception BlockingIOError
 exception ChildProcessError
     Raised when an operation on a child process failed
 """)
-    return uerr.ERR_ALL_GOOD
+    return uerr.RC.ALL_GOOD
 
 
 # def run(data: ugen.CmdData) -> int:
 #     ugen.write(data.stdin)
 #     data.env_vars["sneha"] = "hello"
 #     data.intrpr_vars["thiru"] = "world"
-#     return uerr.ERR_ALL_GOOD
+#     return uerr.RC.ALL_GOOD

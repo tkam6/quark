@@ -48,7 +48,7 @@ class Err(ty.NamedTuple):
 def run(data: ugen.CmdData) -> int:
     to_write: list[Out | Err]
 
-    err_code = uerr.ERR_ALL_GOOD
+    err_code = uerr.RC.ALL_GOOD
     mtimes = "-t" in data.flags or "--mtime" in data.flags
     pths = "-p" in data.flags or "--path" in data.flags
     nm_max_len = 0

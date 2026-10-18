@@ -186,7 +186,7 @@ def esc_item_nm(
 
 def get_items(cmd_nm: str, pth: str, ctx: LsCtx) \
         -> tuple[list[tuple[ItemEntry, os.stat_result]], int]:
-    err_code = uerr.ERR_ALL_GOOD
+    err_code = uerr.RC.ALL_GOOD
     items = []
 
     # Is a file
@@ -231,7 +231,7 @@ def get_items(cmd_nm: str, pth: str, ctx: LsCtx) \
 
     # Doesn't exist
     else:
-        err_code = uerr.ERR_FL_DIR_404
+        err_code = uerr.RC.FL_DIR_404
         ugen.err(f"No such file/directory: \"{pth}\"", nm=cmd_nm)
 
     return (items, err_code)
@@ -490,7 +490,7 @@ def short_list_prn(
 
 
 def run(data: ugen.CmdData) -> int:
-    err_code = uerr.ERR_ALL_GOOD
+    err_code = uerr.RC.ALL_GOOD
     long_list = False
     inodes = False
     num_inode_lnks = False
@@ -548,7 +548,7 @@ def run(data: ugen.CmdData) -> int:
                     f"Cannot cast to int (option {opt}): '{val}'",
                     nm=data.cmd_nm
                 )
-                return uerr.ERR_CANT_CAST_VAL
+                return uerr.RC.CANT_CAST_VAL
             padding = int(val)
 
     ctx = LsCtx(
@@ -581,13 +581,13 @@ def run(data: ugen.CmdData) -> int:
         # FileNotFoundError, PermissionError will be caused by race conditions
         except FileNotFoundError:
             ugen.err(f"No such file/directory: \"{pth}\"", nm=data.cmd_nm)
-            return uerr.ERR_FL_DIR_404
+            return uerr.RC.FL_DIR_404
         except PermissionError:
             ugen.err(f"Access denied: \"{pth}\"", nm=data.cmd_nm)
-            return uerr.ERR_PERM_DENIED
+            return uerr.RC.PERM_DENIED
         except OSError as e:
             ugen.err(f"OS error; {e.strerror}", nm=data.cmd_nm)
-            return uerr.ERR_OS_ERR
+            return uerr.RC.OS_ERR
 
         if not err_code:
             ugen.write(ugen.S.fmt("./", data.is_tty, ugen.S.green_4) + "\n")
@@ -604,7 +604,7 @@ def run(data: ugen.CmdData) -> int:
     # Yes arguments
     else:
         for arg in data.args:
-            tmp_err_code = uerr.ERR_ALL_GOOD
+            tmp_err_code = uerr.RC.ALL_GOOD
             try:
                 items, tmp_err_code = get_items(
                     data.cmd_nm,
@@ -613,13 +613,13 @@ def run(data: ugen.CmdData) -> int:
                 )
             # FileNotFoundError, PermissionError will be due to race conditions
             except FileNotFoundError:
-                tmp_err_code = uerr.ERR_FL_DIR_404
+                tmp_err_code = uerr.RC.FL_DIR_404
                 ugen.err(f"No such file/directory: \"{arg}\"", nm=data.cmd_nm)
             except PermissionError:
-                tmp_err_code = uerr.ERR_PERM_DENIED
+                tmp_err_code = uerr.RC.PERM_DENIED
                 ugen.err(f"Access denied: \"{arg}\"", nm=data.cmd_nm)
             except OSError as e:
-                tmp_err_code = uerr.ERR_OS_ERR
+                tmp_err_code = uerr.RC.OS_ERR
                 ugen.err(f"OS error; {e.strerror}", nm=data.cmd_nm)
 
             # Errors encountered when "getting" items for current argument
