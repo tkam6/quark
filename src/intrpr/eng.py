@@ -752,18 +752,6 @@ class Intrpr:
         return uerr.RC.ALL_GOOD
 
     def rn_cmd_fn(self, cmd_fn: TH_CmdFn, data: ugen.CmdData) -> int:
-        """
-        Run a command function.
-
-        :param cmd_fn: Command function to execute.
-        :type cmd_fn: TH_CmdFn
-
-        :param data: Data to be passed to the command function.
-        :type data: utils.gen.CmdData
-
-        :returns: Integer error code.
-        :rtype: int
-        """
         cmd_ret = uerr.RC.ALL_GOOD
 
         # DEBUG: Run command function time start
@@ -771,17 +759,14 @@ class Intrpr:
 
         try:
             cmd_ret = cmd_fn(data)
-        # Variable type mismatch
         except ugen.InvVarTypErr as e:
             cmd_ret = cmd_ret or uerr.RC.ENV_VAR_INV_TYP
             ugen.err_Q(
-                f"Invalid variable type for '{e.var_nm}'; expected '{e.var_typ.__name__}', got '{e.got_typ.__name__}'"
+                f"var {e.var_nm}: expected {e.var_typ.__name__}', got '{e.got_typ.__name__}'",
             )
-        # Invalid variable name
         except ugen.InvVarNmErr as e:
             cmd_ret = cmd_ret or uerr.RC.ENV_VAR_INV_NM
             ugen.err_Q(f"Invalid variable name: '{e.var_nm}'")
-        # Unknown variable
         except ugen.UnkVarErr as e:
             cmd_ret = cmd_ret or uerr.RC.ENV_UNK_VAR
             ugen.err_Q(f"Unknown variable: '{e.var_nm}'")
@@ -791,7 +776,7 @@ class Intrpr:
             ugen.fmt_d_stmt(
                 "time",
                 "rn_cmd_fn",
-                self.fmt_t_ns(time.perf_counter_ns() - _t_rn_cmd_fn)
+                self.fmt_t_ns(time.perf_counter_ns() - _t_rn_cmd_fn),
             )
         )
         return cmd_ret

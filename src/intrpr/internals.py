@@ -362,7 +362,7 @@ class IntrprTbl:
         self,
         nm: str,
         val: ty.Any,
-        protected: bool = False
+        protected: bool = False,
     ) -> None:
         self.protection_status[nm] = protected
         self.intrpr_tbl[nm] = val
@@ -379,7 +379,10 @@ class IntrprTbl:
         except KeyError:
             pass
 
-    def items(self) -> cabc.ItemsView[str, ty.Any]:
+    def values(self) -> cabc.ValuesView[object]:
+        return self.intrpr_tbl.values()
+
+    def items(self) -> cabc.ItemsView[str, object]:
         return self.intrpr_tbl.items()
 
     def crt_self_cp(self) -> ty.Self:
