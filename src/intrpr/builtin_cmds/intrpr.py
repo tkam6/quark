@@ -103,15 +103,15 @@ def set_vars_helper(
     return err_code
 
 
-def cons_prn_str(prn_typ: bool, prn_val: bool, val: ty.Any, max_typ_len: int, is_tty: bool):
+def cons_prn_str(repr_val: bool, prn_typ: bool, prn_val: bool, val: ty.Any, max_typ_len: int, is_tty: bool):
     if prn_typ and prn_val:
         typ_str = type(val).__name__
         tmp = ugen.ljust(typ_str, max_typ_len) if is_tty else typ_str
-        return f": {tmp} = {val!r}"
+        return f": {tmp} = {repr(val) if repr_val else val}"
     elif prn_typ: 
         return f": {type(val).__name__}"
     else:
-        return f" = {val}"
+        return f" = {repr(val) if repr_val else val}"
 
 
 def run(data: ugen.CmdData) -> int:
@@ -143,7 +143,7 @@ def run(data: ugen.CmdData) -> int:
             fmted_nm = ugen.S.fmt(nm, data.is_tty, ugen.S.green_4)
             ugen.write(
                 (ugen.ljust(fmted_nm, max_nm_len) if data.is_tty else fmted_nm)
-                + cons_prn_str(disp_typs, disp_vals, val, max_typ_len, data.is_tty)
+                + cons_prn_str(repr_val, disp_typs, disp_vals, val, max_typ_len, data.is_tty)
                 + "\n",
             )
 
@@ -155,15 +155,14 @@ def run(data: ugen.CmdData) -> int:
         )
         for arg in data.args:
             if arg not in data.intrpr_vars:
-                ugen.err(f"No such variable: '{arg}'", nm=data.cmd_nm)
+                ugen.err(f"No such variable: {arg!r}", nm=data.cmd_nm)
                 err_code = err_code or uerr.RC.ENV_UNK_VAR
                 continue
             fmted_arg = ugen.S.fmt(arg, data.is_tty, ugen.S.green_4)
             val = data.intrpr_vars[arg]
-            val = repr(val) if repr_val else str(val)
             ugen.write(
                 (ugen.ljust(fmted_arg, max_arg_len) if data.is_tty else fmted_arg)
-                + cons_prn_str(disp_typs, disp_vals, val, max_typ_len, data.is_tty)
+                + cons_prn_str(repr_val, disp_typs, disp_vals, val, max_typ_len, data.is_tty)
                 + "\n",
             )
 
@@ -176,7 +175,7 @@ def run(data: ugen.CmdData) -> int:
             nm,
             typ,
             val,
-            data.intrpr_vars
+            data.intrpr_vars,
         )
         err_code = err_code or tmp_err_code
 
