@@ -198,8 +198,7 @@ class CmdReslvr:
         cmd_spec = cmd_mod.CMD_SPEC
         help_obj = cmd_mod.HELP
         is_fn_callable = callable(cmd_fn)
-        is_num_fn_params_ok = (is_fn_callable
-                               and cmd_fn.__code__.co_argcount == 1)
+        is_num_fn_params_ok = is_fn_callable and cmd_fn.__code__.co_argcount == 1
         is_spec_ok = isinstance(cmd_spec, ugen.CmdSpec)
         is_help_ok = isinstance(help_obj, ugen.HelpObj)
         if not is_fn_callable:

@@ -65,7 +65,7 @@ CMD_SPEC = ugen.CmdSpec(
     min_args=0,
     max_args=float("inf"),
     opts=tuple(opt for opts in OPTS.values() for opt in opts),
-    flags=tuple(flag for flags in FLAGS.values() for flag in flags)
+    flags=tuple(flag for flags in FLAGS.values() for flag in flags),
 )
 
 

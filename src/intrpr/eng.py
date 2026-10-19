@@ -61,7 +61,7 @@ class Intrpr:
             uerr.RC.UNCALLABLE_CMD_FN: "Uncallable command function",
             uerr.RC.INV_NUM_PARAMS: "Bad function argument count",
             uerr.RC.INV_CMD_SPEC: "Bad command spec",
-            uerr.RC.INV_HELP_OBJ: "Bad help oject",
+            uerr.RC.INV_HELP_OBJ: "Bad help object",
             uerr.RC.RECUR_ERR: "Recursion limit exceeded",
             uerr.RC.CMD_SYN_ERR: "Syntax error",
             uerr.RC.CANT_LD_CMD_MOD: "Load failed",
