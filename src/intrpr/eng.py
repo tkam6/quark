@@ -485,7 +485,7 @@ class Intrpr:
         tmp = iparam.classi_params(cmd_nm, params, cmd_spec)
         if isinstance(tmp, int):
             return iint.CmdCompdObj(tmp)
-        sub_cmd, args, opts, flags = tmp
+        sub_cmd, args, opts, flags, arg_idxs, opt_idxs, flag_idxs = tmp
 
         try:
             term_sz = os.get_terminal_size()
@@ -502,6 +502,9 @@ class Intrpr:
             args=tuple(args),
             opts=opts,
             flags=tuple(flags),
+            arg_idxs=arg_idxs,
+            opt_idxs=opt_idxs,
+            flag_idxs=flag_idxs,
             cmd_reslvr=self.cmd_reslvr,
             intrpr_vars=intrpr_vars_cp,
             env_vars=self.env_vars,

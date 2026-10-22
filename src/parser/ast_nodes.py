@@ -76,7 +76,7 @@ class Quoted(Param):
 
 @dc.dataclass(repr=False)
 class SimpCmd:
-    params: list[Param]
+    params: dict[Param]
 
     def get_param(self, idx: int) -> Param | None:
         if idx >= len(self.params):

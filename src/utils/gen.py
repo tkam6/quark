@@ -126,6 +126,9 @@ class CmdData(ty.NamedTuple):
     args: tuple[str, ...]
     opts: dict[str, str]
     flags: tuple[str, ...]
+    arg_idxs: tuple[int, ...]
+    opt_idxs: tuple[int, ...]
+    flag_idxs: tuple[int, ...]
     cmd_reslvr: "icrsr.CmdReslvr"
     intrpr_vars: "iint.IntrprTbl"
     env_vars: "iint.EnvTbl"

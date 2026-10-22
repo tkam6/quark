@@ -53,21 +53,21 @@ RC_INV_ARG = 1000
 def run(data: ugen.CmdData) -> int:
     err_code = uerr.RC.ALL_GOOD
     headers = True
-    what_to_disp = []
+    what_to_disp = [None] * (len(data.args) + len(data.opts) + len(data.flags))
 
-    for flag in data.flags:
+    for flag_num, flag in enumerate(data.flags):
         if flag in DISP_FLAGS:
-            what_to_disp.append(DISP_FLAGS[flag])
+            what_to_disp[data.flag_idxs[flag_num]] = DISP_FLAGS[flag]
         elif flag in BEHAVIOUR_FLAGS["NO-HEADERS"]:
             headers = False
 
-    for arg in data.args:
+    for arg_num, arg in enumerate(data.args):
         if arg not in DISP_ARGS:
             ugen.err(f"Whoopsa-daisy, what do we havvvve here? '{arg}'")
             return RC_INV_ARG
-        what_to_disp.append(DISP_ARGS[arg])
+        what_to_disp[data.arg_idxs[arg_num]] = DISP_ARGS[arg]
 
-    what_to_disp = list(dict.fromkeys(what_to_disp))
+    what_to_disp = list(dict.fromkeys(i for i in what_to_disp if i is not None))
 
     max_field_len = 0
     try:

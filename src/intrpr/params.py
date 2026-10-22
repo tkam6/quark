@@ -20,6 +20,9 @@ def classi_params(
     args = []
     opts = {}
     flags = []
+    arg_idxs = []
+    opt_idxs = []
+    flag_idxs = []
     arg_cnt = 0
     skip = 0
     params_len = len(params)
@@ -36,6 +39,7 @@ def classi_params(
             # Flags are given more preference
             if param_val in cmd_spec.flags:
                 flags.append(param_val)
+                flag_idxs.append(idx)
             # Then options
             elif param_val in cmd_spec.opts:
                 if idx >= params_len - 1:
@@ -45,6 +49,7 @@ def classi_params(
                     )
                     return uerr.RC.EXPD_VAL_OPT
                 opts[param_val] = params[idx + 1].val
+                opt_idxs.append(idx)
                 skip += 1
             # Invalid long-form option/flag
             else:
@@ -60,6 +65,7 @@ def classi_params(
         ):
             if param_val in cmd_spec.flags:
                 flags.append(param_val)
+                flag_idxs.append(idx)
             elif param_val in cmd_spec.opts:
                 if idx >= params_len - 1:
                     ugen.err(
@@ -68,6 +74,7 @@ def classi_params(
                     )
                     return uerr.RC.EXPD_VAL_OPT
                 opts[param_val] = params[idx + 1].val
+                opt_idxs.append(idx)
                 skip += 1
             else:
                 # Lone '-'
@@ -81,6 +88,7 @@ def classi_params(
                 for i in param_val[1 :]:
                     if "-" + i in cmd_spec.flags:
                         flags.append("-" + i)
+                        flag_idxs.append(idx)
                         continue
                     ugen.err(
                         f"Invalid option/flag: '{param_val}'",
@@ -98,6 +106,7 @@ def classi_params(
             )
             return uerr.RC.UNEXPD_ARGS
         args.append(param_val)
+        arg_idxs.append(idx)
 
     if arg_cnt < cmd_spec.min_args:
         ugen.err(
@@ -144,4 +153,12 @@ def classi_params(
             )
             return uerr.RC.UNEXPD_ARGS
 
-    return (sub_cmd, tuple(args), opts, tuple(flags))
+    return (
+        sub_cmd,
+        tuple(args),
+        opts,
+        tuple(flags),
+        tuple(arg_idxs),
+        tuple(opt_idxs),
+        tuple(flag_idxs),
+    )

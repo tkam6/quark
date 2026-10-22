@@ -1,3 +1,8 @@
+# A few definitions...
+# Simple command: Something of format `cmd flag ... opt ... arg ...`
+# Command expression: Something of format `simp_cmd op simp_cmd op simp_cmd ...`
+# Command sequence: Something of format `cmd_expr sepr cmd_expr sepr cmd_expr ...`
+
 from src.parser import ast_nodes as past
 from src.parser import internals as pint
 from src.utils import err_codes as uerr
