@@ -9,10 +9,10 @@
 ### Parser engine (src/intrpr/eng.py)
 
 - Implement globbing.
-- Add indices to indicate the order of arguments and options and flags. The
-indices should be "global"; meaning, it must include all args, opts and flags
-in a continuous array of numbers. Don't implement it as three different arrays
-of numbers! We need continuous for commands like `sys`.
+- [DONE] Add indices to indicate the order of arguments and options and flags.
+The indices should be "global"; meaning, it must include all args, opts and
+flags in a continuous array of numbers. Don't implement it as three different
+arrays of numbers! We need continuous for commands like `sys`.
 
 ## Core interpreter
 

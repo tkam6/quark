@@ -138,7 +138,7 @@ class CmdSeq:
     def __setitem__(
         self,
         idx_or_sl: int | slice,
-        item: CmdExpr | list[CmdExpr]
+        item: CmdExpr | list[CmdExpr],
     ) -> None:
         self.cmds[idx_or_sl] = item
 
