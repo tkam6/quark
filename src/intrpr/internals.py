@@ -385,7 +385,7 @@ class IntrprTbl:
     def items(self) -> cabc.ItemsView[str, object]:
         return self.intrpr_tbl.items()
 
-    def crt_self_cp(self) -> ty.Self:
+    def crt_cp(self) -> ty.Self:
         return copy.deepcopy(self)
 
 

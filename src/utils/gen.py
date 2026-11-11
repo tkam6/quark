@@ -17,7 +17,7 @@ if ty.TYPE_CHECKING:
 ### CUSTOM EXCEPTIONS ###
 #########################
 
-class KeyboardInterruptWPrevileges(Exception):
+class KBInterruptWChildInfo(Exception):
     def __init__(self, e: Exception, child_pid: int) -> None:
         self.err = err
         self.child_pid = child_pid

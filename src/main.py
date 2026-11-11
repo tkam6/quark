@@ -212,7 +212,6 @@ def main() -> None:
                 rl.parse_and_bind("set editing-mode vi")
 
     except Exception as e:
-        tb.print_exc()
         ugen.fatal_Q(
             f"Interpreter init failed; {e.__class__.__name__}",
             uerr.RC.UNK_FATAL,
@@ -236,15 +235,9 @@ def main() -> None:
             intrpr.intrpr_vars["LAST_RET"] = cmd_ret
             ugen.debug(str(intrpr.intrpr_vars))
 
-        # ^c on a built-in command
+        # ^c on built-in command
         except KeyboardInterrupt:
             intrpr.intrpr_vars["LAST_RET"] = uerr.RC.KB_INTERR
-            ugen.write("\n")
-
-        # ^c on an external command
-        except ugen.KeyboardInterruptWPrevileges as e:
-            intrpr.intrpr_vars["LAST_RET"] = uerr.RC.KB_INTERR
-            os.kill(e.child_pid, sig.SIGKILL)
             ugen.write("\n")
 
         except EOFError:

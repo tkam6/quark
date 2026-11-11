@@ -29,7 +29,7 @@ def high_mem(data: ugen.CmdData) -> None:
     full = 10 ** 8
     segment = full // 5
     for j, i in enumerate(range(segment, full, segment)):
-        ugen.write(str(j) * i)
+        # ugen.write(str(j) * i)
         " " * 10 ** 10
 
 
@@ -95,5 +95,11 @@ exception ChildProcessError
 def run(data: ugen.CmdData) -> int:
     ugen.write(data.stdin)
     # data.env_vars["sneha"] = "hello"
-    data.intrpr_vars["thiru"] = "world"
+    # data.intrpr_vars["thiru"] = "world"
+    try:
+        # high_mem(data)
+        while True:
+            pass
+    except KeyboardInterrupt:
+        pass
     return uerr.RC.ALL_GOOD

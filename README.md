@@ -2,11 +2,11 @@
 
 A pure-Python, extensible command-line shell with its own parser, execution engine, pipeline system and scripting environment. Quark focuses on simplicity and lightweightness. Holy larp.
 
-See [`docs/`](../docs/) for detailed documentation on modules and internals.  
-See [`dev/`](../dev/) for development notes and plans.  
-See [`dev/planned.md`](../dev/planned.md) for future development plans and
+See [`docs/`](./docs/) for detailed documentation on modules and internals.  
+See [`dev/`](./dev/) for development notes and plans.  
+See [`dev/planned.md`](./dev/planned.md) for future development plans and
 ideas.  
-See [`dev/issues.md`](../dev/issues.md) for bugs and issues in the project.
+See [`dev/issues.md`](./dev/issues.md) for bugs and issues in the project.
 
 ## Why Quark?
 
