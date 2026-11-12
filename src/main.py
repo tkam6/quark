@@ -199,7 +199,7 @@ def main() -> None:
         intrpr_proc_pid = os.getpid()
         atexit.register(lambda: intrpr.shm.unlink() if os.getpid() == intrpr_proc_pid else None)
 
-        ugen.info_Q(f"running from \"{uconst.RUN_PTH}\"")
+        ugen.info_Q(ugen.fmt_i_stmt("running from", uconst.RUN_PTH))
         # No line mode option passed from command line
         if parsed.ln_mode == "default":
             if cfg.ln_mode != "raw":

@@ -386,6 +386,18 @@ def fmt_d_stmt(
     return full_str
 
 
+def fmt_i_stmt(
+    header: str,
+    msg: str,
+    pad: int = 25,  # 1 higher than default for fmt_d_stmt for space before arrow
+    header_msg_sep: str = ": ",
+) -> str:
+    full_str = header.ljust(pad)
+    if msg:
+        full_str += f": {msg}"
+    return full_str
+
+
 def fmt_t_ns(time_expo: int, ns: int) -> str:
     unit = "?"
     if time_expo == 6:

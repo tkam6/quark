@@ -43,7 +43,7 @@ class CmdReslvr:
         fl_pth: str,
         buf_sz: int = 65536     # 64KiB chunks
     ) -> str | int:
-        ugen.info_Q(f"file provided: {fl_pth}")
+        ugen.info_Q(ugen.fmt_i_stmt("module provided for hash", fl_pth))
         # DEBUG: Hash time start
         _t_hash = time.perf_counter_ns()
 
@@ -72,7 +72,7 @@ class CmdReslvr:
                 self.fmt_t_ns(_t_hash)
             )
         )
-        ugen.info_Q(f"file hash: {fl_hash}")
+        ugen.info_Q(ugen.fmt_i_stmt("file hash", fl_hash))
         return fl_hash
 
     def _is_new_ld_reqd(
@@ -240,7 +240,7 @@ class CmdReslvr:
         ugen.debug_Q(
             ugen.fmt_d_stmt("time", "tot_ld_bltns", self.fmt_t_ns(_t_ld_bcmds))
         )
-        ugen.info_Q(f"built-ins loaded: {num_lded_builtin}")
+        ugen.info_Q(ugen.fmt_i_stmt("built-ins loaded", str(num_lded_builtin)))
 
     def get_builtin_help(self, cmd: str) -> ugen.HelpObj | int:
         tmp = self.builtin_cmds.get(cmd)
