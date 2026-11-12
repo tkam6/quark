@@ -65,10 +65,10 @@ class Err:
 
 
 def cons_detailed_help_str(
-    help_obj: ugen.HelpObj,
-    term_sz: os.terminal_size,
-    is_tty: bool
-) -> str:
+        help_obj: ugen.HelpObj,
+        term_sz: os.terminal_size,
+        is_tty: bool,
+    ) -> str:
     # TODO: Make the padding only depend on parameter names of the current
     # section, like separate padding amounts for "ARGUMENTS", "OPTIONS",
     # "FLAGS"
@@ -128,13 +128,13 @@ def cons_detailed_help_str(
 
 
 def get_detailed_help(
-    cmd_reslvr: "icres.CmdReslvr",
-    ext_cached_cmds: dict[str, "iint.CmdCacheEntry"],
-    pths: tuple[str, ...],
-    args: tuple[str, ...],
-    term_sz: os.terminal_size,
-    is_tty: bool
-) -> list[Out | Err]:
+        cmd_reslvr: "icres.CmdReslvr",
+        ext_cached_cmds: dict[str, "iint.CmdCacheEntry"],
+        pths: tuple[str, ...],
+        args: tuple[str, ...],
+        term_sz: os.terminal_size,
+        is_tty: bool,
+    ) -> list[Out | Err]:
     op_buf: list[Out | Err]
     op_buf = []
 
@@ -183,16 +183,10 @@ def run(data: ugen.CmdData) -> int:
             ext_cmds = True
 
     if (all_cmds or ext_cmds) and data.args:
-        ugen.err(
-            "Cannot use all or external command flags for detailed help",
-            nm=data.cmd_nm
-        )
+        ugen.err("Cannot use all or external command flags for detailed help", nm=data.cmd_nm)
         return uerr.RC.INV_USAGE
     if all_cmds and ext_cmds:
-        ugen.err(
-            "Cannot use all and external command flags simultaneously",
-            nm=data.cmd_nm
-        )
+        ugen.err("Cannot use all and external command flags simultaneously", nm=data.cmd_nm)
         return uerr.RC.INV_USAGE
 
     op_buf = []
@@ -201,8 +195,8 @@ def run(data: ugen.CmdData) -> int:
     if not data.args:
         # Either all commands or just built-in ones
         if all_cmds or not ext_cmds:
-            # Run, run, RUNNNNN through the built-ins available
-            for elem in cmd_reslvr.builtin_cmds:
+            # Go through available built-ins
+            for elem in sorted(cmd_reslvr.builtin_cmds):
                 op_buf.append(Out(
                     ugen.S.fmt(elem, data.is_tty, ugen.S.green_4),
                     cmd_reslvr.get_builtin_help(elem).summary,
@@ -217,7 +211,7 @@ def run(data: ugen.CmdData) -> int:
             # Run, run, RUNNNNN through paths in the path variable
             for pth in pths:
                 try:
-                    for item in os.listdir(pth):
+                    for item in sorted(os.listdir(pth)):
                         if not os.path.isfile(os.path.join(pth, item)):
                             continue
                         if not item.endswith(".py"):

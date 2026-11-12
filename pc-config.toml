@@ -1,3 +1,21 @@
+[default]
+force = true
+quiet = true
+file = "./src/main.py"
+full-directories = ["./src/py/"]
+raw-files = ["./src/cfg.py"]
+packages = ["intrpr.builtin_cmds"]
+
+[release]
+force = true
+quiet = true
+lto = true
+file = "./src/main.py"
+full-directories = ["./src/py/"]
+raw-files = ["./src/cfg.py"]
+packages = ["intrpr.builtin_cmds"]
+
+[debug]
 force = true
 quiet = true
 file = "./src/main.py"
