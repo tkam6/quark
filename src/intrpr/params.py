@@ -156,9 +156,9 @@ def classi_params(
     ugen.debug_Q(ugen.fmt_d_stmt("params", "got args", str(args)))
     ugen.debug_Q(ugen.fmt_d_stmt("params", "got opts", str(opts)))
     ugen.debug_Q(ugen.fmt_d_stmt("params", "got flags", str(flags)))
-    ugen.debug_Q(ugen.fmt_d_stmt("params", "got arg_idxs", str(arg_idxs)))
-    ugen.debug_Q(ugen.fmt_d_stmt("params", "got opt_idxs", str(opt_idxs)))
-    ugen.debug_Q(ugen.fmt_d_stmt("params", "got flag_idxs", str(flag_idxs)))
+    ugen.debug_Q(ugen.fmt_d_stmt("params", "got arg idxs", str(arg_idxs)))
+    ugen.debug_Q(ugen.fmt_d_stmt("params", "got opt idxs", str(opt_idxs)))
+    ugen.debug_Q(ugen.fmt_d_stmt("params", "got flag idxs", str(flag_idxs)))
     return (
         sub_cmd,
         tuple(args),

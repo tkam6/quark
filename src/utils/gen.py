@@ -1,7 +1,10 @@
 import dataclasses as dcs
 import os
 import re
+import select
 import sys
+import termios
+import tty
 import typing as ty
 
 from src.parser import internals as pint
@@ -371,6 +374,34 @@ def debug_Q(msg: str, nm: str | None = None) -> None:
             f"{uconst.ANSI_BOLD}DQ:{uconst.ANSI_RESET} {src}{msg}\n",
         )
         sys.stderr.flush()
+
+
+#############
+### INPUT ###
+#############
+# Source - https://stackoverflow.com/a/17939632
+# Posted by Vitja Makarov
+# Retrieved 2026-06-28, License - CC BY-SA 3.0
+def setup_term(fd, when=termios.TCSAFLUSH):
+    mode = termios.tcgetattr(fd)
+    mode[tty.LFLAG] = mode[tty.LFLAG] & ~(termios.ECHO | termios.ICANON)
+    termios.tcsetattr(fd, when, mode)
+
+
+def getch(timeout: float | None = None) -> str | None:
+    fd = sys.stdin.fileno()
+    old_settings = termios.tcgetattr(fd)
+    try:
+        setup_term(fd)
+        try:
+            rw, wl, xl = select.select([fd], [], [], timeout)
+        except select.error:
+            return None
+        if rw:
+            return sys.stdin.read(1)
+    finally:
+        termios.tcsetattr(fd, termios.TCSADRAIN, old_settings)
+    return None
 
 
 def fmt_d_stmt(

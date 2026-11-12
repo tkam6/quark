@@ -381,7 +381,7 @@ class Intrpr:
         # It's assumed that cmd_src can only be one of two values, "external"
         # and "built-in"
         if cmd_src == "external":
-            ugen.debug("resolved to external command")
+            ugen.debug_Q(ugen.fmt_d_stmt("exec", "resolved to external command"))
 
             child_pid = [0]
             count = [0]
@@ -489,7 +489,7 @@ class Intrpr:
 
         # Built-in command; run in same process as interpreter
         elif cmd_src == "built-in":
-            ugen.debug("resolved to built-in command")
+            ugen.debug_Q(ugen.fmt_d_stmt("exec", "resolved to built-in command"))
             try:
                 cmd_ret = self.rn_cmd_fn(cmd_fn, data)
             except Exception as e:

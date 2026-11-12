@@ -39,3 +39,15 @@ sort.
 
 - Create this command, and integrate system information, like hostname and the
 sort, into this command.
+
+### help (src/intrpr/builtin_cmds/help.py)
+
+- Need to come up with a better help system. Like, commands should be written in
+such a way that arguments, options or flags that are not undocumented in the
+help message should be clearly visible to the developer. For that, I need to
+first develop a system of defining arguments, options and flags in a command,
+like I have the three compulsory attributes HELP, CMD_SPEC and run. And
+CMD_SPEC and HELP should obtain info from these, as well as other checks and
+other things with the arguments and options and flags. Another attribute can be
+used to store the necessary descriptions of arguments, options and flags. I
+will not be implementing this right now, but will do so in the future.

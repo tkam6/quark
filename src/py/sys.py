@@ -34,10 +34,34 @@ DISP_FLAGS = {
     "--user"  : "username",
 }
 
+CMD_NM = __name__.split(".")[-1]
+
 HELP = ugen.HelpObj(
-    usage="",
-    summary="",
-    details=(""),
+    usage="sys [flag ...] [entry ...]",
+    summary="Display system information",
+    details=(
+        "ARGUMENTS",
+        (
+            "entry",
+            ("Entry to display\n"
+             "'archi' : Machine architecture\n"
+             "'host'  : Hostname\n"
+             "'kernel': Kernel version\n"
+             "'os'    : OS name\n"
+             "'uid'   : User ID\n"
+             "'user'  : User name"),
+        ),
+        "OPTIONS",
+        ("none", ""),
+        "FLAGS",
+        ("-a, --archi", "Display machine architecture entry"),
+        ("-h, --host", "Display hostname entry"),
+        ("-H, --no-headers", "Do not display entry headers"),
+        ("-i, --user-id", "Display user ID entry"),
+        ("-k, --kernel", "Display kernel version entry"),
+        ("-o, --os", "Display OS name entry"),
+        ("-u, --user", "Display username entry"),
+    ),
 )
 
 CMD_SPEC = ugen.CmdSpec(
@@ -68,6 +92,7 @@ def run(data: ugen.CmdData) -> int:
         what_to_disp[data.arg_idxs[arg_num]] = DISP_ARGS[arg]
 
     what_to_disp = list(dict.fromkeys(i for i in what_to_disp if i is not None))
+    ugen.debug(ugen.fmt_d_stmt(CMD_NM, "display items", str(what_to_disp)))
 
     max_field_len = 0
     try:
