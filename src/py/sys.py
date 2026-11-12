@@ -11,27 +11,27 @@ BEHAVIOUR_FLAGS = {
 }
 
 DISP_ARGS = {
-    "archi"   : "architecture",
-    "host"    : "hostname",
-    "kernel"  : "kernel",
-    "os"      : "os",
-    "uid"     : "user-id",
-    "user"    : "username",
+    "archi" : "architecture",
+    "host"  : "hostname",
+    "kernel": "kernel",
+    "os"    : "os",
+    "uid"   : "user-id",
+    "user"  : "username",
 }
 
 DISP_FLAGS = {
-    "-a"        : "architecture",
-    "--archi"   : "architecture",
-    "-h"        : "hostname",
-    "--host"    : "hostname",
-    "-i"        : "user-id",
-    "-k"        : "kernel",
-    "--kernel"  : "kernel",
-    "-o"        : "os",
-    "--os"      : "os",
-    "--uid"     : "user-id",
-    "-u"        : "username",
-    "--user"    : "username",
+    "-a"      : "architecture",
+    "--archi" : "architecture",
+    "-h"      : "hostname",
+    "--host"  : "hostname",
+    "-i"      : "user-id",
+    "-k"      : "kernel",
+    "--kernel": "kernel",
+    "-o"      : "os",
+    "--os"    : "os",
+    "--uid"   : "user-id",
+    "-u"      : "username",
+    "--user"  : "username",
 }
 
 HELP = ugen.HelpObj(

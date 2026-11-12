@@ -43,7 +43,7 @@ class CmdReslvr:
         fl_pth: str,
         buf_sz: int = 65536     # 64KiB chunks
     ) -> str | int:
-        ugen.info(f"file provided: {fl_pth}")
+        ugen.info_Q(f"file provided: {fl_pth}")
         # DEBUG: Hash time start
         _t_hash = time.perf_counter_ns()
 
@@ -72,7 +72,7 @@ class CmdReslvr:
                 self.fmt_t_ns(_t_hash)
             )
         )
-        ugen.info(f"file hash: {fl_hash}")
+        ugen.info_Q(f"file hash: {fl_hash}")
         return fl_hash
 
     def _is_new_ld_reqd(

@@ -164,6 +164,9 @@ def parse_argv(cfg: MainProgParsed, passed_params: list[str]) -> MainProgParsed:
             ret=uerr.RC.INSUFF_ARGS if MIN_ARGS < args_len else uerr.RC.UNEXPD_ARGS,
         )
 
+    if len(args) >= 1:
+        cfg.fl = args[0]
+
     return cfg
 
 def main() -> None:
@@ -218,6 +221,11 @@ def main() -> None:
             exc_txt=tb.format_exc(),
         )
 
+    # Script
+    #if cfg.fl is not None:
+
+
+    # Interactive session
     prompt_404_warned = False
     while True:
         try:
@@ -233,9 +241,8 @@ def main() -> None:
             raw_ln = input(iprom.reslv_prompt(intrpr, prompt))
             cmd_ret = intrpr.exec(raw_ln)
             intrpr.intrpr_vars["LAST_RET"] = cmd_ret
-            ugen.debug(str(intrpr.intrpr_vars))
+            ugen.debug_Q(ugen.fmt_d_stmt("gen", "intrpr vars", str(intrpr.intrpr_vars)))
 
-        # ^c on built-in command
         except KeyboardInterrupt:
             intrpr.intrpr_vars["LAST_RET"] = uerr.RC.KB_INTERR
             ugen.write("\n")
@@ -246,8 +253,8 @@ def main() -> None:
 
         except Exception as e:
             ugen.fatal_Q(
-                f"{e.__class__.__name__} in main interpreter loop\n{e}",
-                uerr.RC.UNK_FATAL,
+                f"Fatal exception {e.__class__.__name__} in interpreter loop: {e}",
+                ret=uerr.RC.UNK_FATAL,
                 exc_txt=tb.format_exc()
             )
 

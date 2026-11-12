@@ -24,15 +24,14 @@ def classi_params(
     opt_idxs = []
     flag_idxs = []
     arg_cnt = 0
-    skip = 0
-    params_len = len(params)
+    len_params = len(params)
 
+    idx = -1
     # Iterate through the parser output
-    for idx, param in enumerate(params):
+    while idx < len_params - 1:
+        param = params[idx]
+        idx += 1
         param_val = param.val
-        if skip:
-            skip -= 1
-            continue
 
         # LONG-FORM OPTIONS AND FLAGS
         if param_val.startswith("--") and not param.escd_hyp:
@@ -42,7 +41,7 @@ def classi_params(
                 flag_idxs.append(idx)
             # Then options
             elif param_val in cmd_spec.opts:
-                if idx >= params_len - 1:
+                if idx >= len_params - 1:
                     ugen.err(
                         f"Expected value for option '{param_val}'",
                         nm=cmd_nm,
@@ -50,7 +49,7 @@ def classi_params(
                     return uerr.RC.EXPD_VAL_OPT
                 opts[param_val] = params[idx + 1].val
                 opt_idxs.append(idx)
-                skip += 1
+                idx += 1
             # Invalid long-form option/flag
             else:
                 ugen.err(f"Invalid option/flag: '{param_val}'", nm=cmd_nm)
@@ -67,7 +66,7 @@ def classi_params(
                 flags.append(param_val)
                 flag_idxs.append(idx)
             elif param_val in cmd_spec.opts:
-                if idx >= params_len - 1:
+                if idx >= len_params - 1:
                     ugen.err(
                         f"Expected value for option '{param_val}'",
                         nm=cmd_nm
@@ -75,7 +74,7 @@ def classi_params(
                     return uerr.RC.EXPD_VAL_OPT
                 opts[param_val] = params[idx + 1].val
                 opt_idxs.append(idx)
-                skip += 1
+                idx += 1
             else:
                 # Lone '-'
                 if not param_val[1 :]:
@@ -85,10 +84,11 @@ def classi_params(
                     )
                     return uerr.RC.INV_OPTS_FLAGS
                 # Combined short flags
-                for i in param_val[1 :]:
-                    if "-" + i in cmd_spec.flags:
-                        flags.append("-" + i)
+                for short_opt in param_val[1 :]:
+                    if "-" + short_opt in cmd_spec.flags:
+                        flags.append("-" + short_opt)
                         flag_idxs.append(idx)
+                        idx += 1
                         continue
                     ugen.err(
                         f"Invalid option/flag: '{param_val}'",
@@ -153,6 +153,12 @@ def classi_params(
             )
             return uerr.RC.UNEXPD_ARGS
 
+    ugen.debug_Q(ugen.fmt_d_stmt("params", "got args", str(args)))
+    ugen.debug_Q(ugen.fmt_d_stmt("params", "got opts", str(opts)))
+    ugen.debug_Q(ugen.fmt_d_stmt("params", "got flags", str(flags)))
+    ugen.debug_Q(ugen.fmt_d_stmt("params", "got arg_idxs", str(arg_idxs)))
+    ugen.debug_Q(ugen.fmt_d_stmt("params", "got opt_idxs", str(opt_idxs)))
+    ugen.debug_Q(ugen.fmt_d_stmt("params", "got flag_idxs", str(flag_idxs)))
     return (
         sub_cmd,
         tuple(args),

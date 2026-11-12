@@ -496,6 +496,8 @@ class Intrpr:
                 cmd_ret = uerr.RC.CMD_RNTIME_ERR
                 txt = f"Unhandled exception {e.__class__.__name__} in (built-in) {cmd_nm!r}: {e}"
                 ugen.crit_Q(txt, exc_txt=(txt + "\n" + tb.format_exc()))
+            except KeyboardInterrupt:
+                cmd_ret = uerr.RC.KB_INTERR
             err_code = err_code or cmd_ret
 
         return iint.CmdCompdObj(err_code=err_code)
@@ -511,7 +513,7 @@ class Intrpr:
             stdin: str,
             stdout_obj: io.TextIOBase,
             stderr_obj: io.TextIOBase,
-        ):
+        ) -> iint.CmdCompdObj:
         tmp = iparam.classi_params(cmd_nm, params, cmd_spec)
         if isinstance(tmp, int):
             return iint.CmdCompdObj(tmp)
@@ -804,13 +806,11 @@ class Intrpr:
             ugen.err_Q(f"Unknown variable: '{e.var_nm}'")
 
         # DEBUG: Run command function time end
-        ugen.debug(
-            ugen.fmt_d_stmt(
-                "time",
-                "rn_cmd_fn",
-                self.fmt_t_ns(time.perf_counter_ns() - _t_rn_cmd_fn),
-            ),
-        )
+        ugen.debug_Q(ugen.fmt_d_stmt(
+            "time",
+            "rn_cmd_fn",
+            self.fmt_t_ns(time.perf_counter_ns() - _t_rn_cmd_fn),
+        ))
         return cmd_ret
 
     def exec(self, ln: str):
