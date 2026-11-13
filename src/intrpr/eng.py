@@ -105,14 +105,14 @@ class Intrpr:
         self.intrpr_vars["_PREV_CWD_"] = os.getcwd()
         self.intrpr_vars["LAST_RET"] = uerr.RC.ALL_GOOD
 
-        try:
-            os.chdir(udeb.TMP_DIR)
-        except FileNotFoundError:
-            pass
-        except PermissionError:
-            pass
-        except OSError:
-            pass
+        #try:
+        #    os.chdir(udeb.TMP_DIR)
+        #except FileNotFoundError:
+        #    pass
+        #except PermissionError:
+        #    pass
+        #except OSError:
+        #    pass
 
         self.use_cfg()
 

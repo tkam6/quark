@@ -11,6 +11,7 @@ from src.intrpr import eng as ieng
 from src.intrpr import prompt as iprom
 from src.logger import eng as leng
 from src.utils import consts as uconst
+from src.utils import debug as udeb
 from src.utils import err_codes as uerr
 from src.utils import gen as ugen
 
@@ -221,42 +222,75 @@ def main() -> None:
             exc_txt=tb.format_exc(),
         )
 
-    # Script
-    #if cfg.fl is not None:
-
-
-    # Interactive session
-    prompt_404_warned = False
-    while True:
+    if parsed.fl is not None:
+        data = None
         try:
-            try:
-                prompt = intrpr.intrpr_vars["PROMPT"]
-                prompt_404_warned = False
-            except ugen.UnkVarErr:
-                if not prompt_404_warned:
-                    ugen.warn_Q("PROMPT not found; using default")
-                ugen.crit_Q("test quark critical error")
-                prompt = uconst.Defaults.PROMPT
-                prompt_404_warned = True
-            raw_ln = input(iprom.reslv_prompt(intrpr, prompt))
-            cmd_ret = intrpr.exec(raw_ln)
-            intrpr.intrpr_vars["LAST_RET"] = cmd_ret
-            ugen.debug_Q(ugen.fmt_d_stmt("gen", "intrpr vars", str(intrpr.intrpr_vars)))
-
-        except KeyboardInterrupt:
-            intrpr.intrpr_vars["LAST_RET"] = uerr.RC.KB_INTERR
-            ugen.write("\n")
-
-        except EOFError:
-            ugen.write("\nbye\n")
-            sys.exit(uerr.RC.ALL_GOOD)
-
+            with open(parsed.fl) as f:
+                data = f.read()
+        except FileNotFoundError:
+            ugen.fatal_Q(f"No such file: {parsed.fl!r}", ret=uerr.RC.MP_FL_404)
+        except PermissionError:
+            ugen.fatal_Q(f"Access denied: {parsed.fl!r}", ret=uerr.RC.MP_PERM_DENIED)
+        except IsADirectoryError:
+            ugen.fatal_Q(f"Is a directory: {parsed.fl!r}", ret=uerr.RC.MP_IS_A_DIR)
+        except OSError:
+            ugen.fatal_Q(f"OS error; {e.strerror}: {parsed.fl!r}", ret=uerr.RC.MP_OS_ERR)
+        except UnicodeDecodeError:
+            ugen.fatal_Q(f"Does not appear to contain text: {parsed.fl!r}", ret=uerr.RC.MP_DECODE_ERR)
         except Exception as e:
             ugen.fatal_Q(
-                f"Fatal exception {e.__class__.__name__} in interpreter loop: {e}",
-                ret=uerr.RC.UNK_FATAL,
-                exc_txt=tb.format_exc()
+                f"Unexpected exception {e.__class__.__name__} when reading file {parsed.fl!r}: {e}",
+                ret=uerr.RC.MP_UNHDLD_EXC,
+                exc_txt=tb.format_exc(),
             )
+
+        try:
+            if data is None:
+                ugen.fatal_Q(f"Could not get file contents: {parsed.fl!r}")
+            for ln in data.splitlines():
+                cmd_ret = intrpr.exec(ln)
+                intrpr.intrpr_vars["LAST_RET"] = cmd_ret
+                ugen.debug_Q(ugen.fmt_d_stmt("gen", "intrpr_vars", str(intrpr.intrpr_vars)))
+        except KeyboardInterrupt:
+            sys.exit(uerr.RC.MP_KB_INTERR)
+        except EOFError:
+            sys.exit(uerr.RC.MP_EOF)
+        except Exception as e:
+            sys.exit(uerr.RC.MP_UNHDLD_EXC)
+
+    else:
+        # Interactive session
+        prompt_404_warned = False
+        os.chdir(udeb.TMP_DIR)
+        while True:
+            try:
+                try:
+                    prompt = intrpr.intrpr_vars["PROMPT"]
+                    prompt_404_warned = False
+                except ugen.UnkVarErr:
+                    if not prompt_404_warned:
+                        ugen.warn_Q("PROMPT not found; using default")
+                    prompt = uconst.Defaults.PROMPT
+                    prompt_404_warned = True
+                raw_ln = input(iprom.reslv_prompt(intrpr, prompt))
+                cmd_ret = intrpr.exec(raw_ln)
+                intrpr.intrpr_vars["LAST_RET"] = cmd_ret
+                ugen.debug_Q(ugen.fmt_d_stmt("gen", "intrpr vars", str(intrpr.intrpr_vars)))
+
+            except KeyboardInterrupt:
+                intrpr.intrpr_vars["LAST_RET"] = uerr.RC.KB_INTERR
+                ugen.write("\n")
+
+            except EOFError:
+                ugen.write("\nbye\n")
+                sys.exit(uerr.RC.ALL_GOOD)
+
+            except Exception as e:
+                ugen.fatal_Q(
+                    f"Fatal exception {e.__class__.__name__} in interpreter loop: {e}",
+                    ret=uerr.RC.UNK_FATAL,
+                    exc_txt=tb.format_exc()
+                )
 
 
 if __name__ == "__main__":

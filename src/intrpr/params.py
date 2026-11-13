@@ -29,8 +29,8 @@ def classi_params(
     idx = -1
     # Iterate through the parser output
     while idx < len_params - 1:
-        param = params[idx]
         idx += 1
+        param = params[idx]
         param_val = param.val
 
         # LONG-FORM OPTIONS AND FLAGS
