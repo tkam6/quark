@@ -18,7 +18,7 @@ HELP = ugen.HelpObj(
         ("none", ""),
         "FLAGS",
         ("-t, --mtime", "Display modify time of module file"),
-        ("-p, --path", "Display path of module file")
+        ("-p, --path", "Display path of module file"),
     )
 )
 
@@ -28,7 +28,7 @@ CMD_SPEC = ugen.CmdSpec(
     opts=(),
     flags=(
         "-t", "--mtime",
-        "-p", "--path"
+        "-p", "--path",
     )
 )
 
@@ -103,9 +103,9 @@ def run(data: ugen.CmdData) -> int:
                 fmtd_nm = ugen.ljust(fmtd_nm, nm_max_len)
             ugen.write(
                 ugen.rjust(str(j.sz), sz_max_len)
-                + " " + fmtd_nm
-                + (f" [{j.mtime}]" if mtimes else "")
-                + (f" ({re.sub(usr_dir_patt, '~', j.pth)})" if pths else "")
+                + f"  {fmtd_nm}"
+                + (ugen.ljust(f"  {j.mtime}", mtime_max_len + 2) if mtimes else "")
+                + (f"  {re.sub(usr_dir_patt, '~', j.pth)}" if pths else "")
                 + "\n"
             )
     return err_code
