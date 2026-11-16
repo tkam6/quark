@@ -157,7 +157,7 @@ def parse_argv(cfg: MainProgParsed, passed_params: list[str]) -> MainProgParsed:
             idx += 1
             continue
         if param not in OPTS and param not in FLAGS:
-            if [i for i in param[1 :] if f"-{i}" not in OPTS and f"-{i}" not in FLAGS]:
+            if [i for i in param[1 :] if f"-{i}" not in FLAGS]:
                 ugen.fatal_Q(f"Unknown token: '{param}'", ret=uerr.RC.MP_UNK_TOK)
             params[idx : idx + 1] = [f"-{i}" for i in param[1 :]]
             continue
