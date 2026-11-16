@@ -82,7 +82,7 @@ def get_cfg() -> Cfg:
                 continue
             for i in val:
                 if not isinstance(i, str):
-                    ugen.err_Q("Expected 'str' values in value of '{key}'")
+                    ugen.err_Q(f"Expected 'str' values in value of '{key}'")
                     valid_val = False
                     break
             if not valid_val:

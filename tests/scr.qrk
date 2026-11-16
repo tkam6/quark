@@ -1,3 +1,4 @@
 echo hello world
 cd ~/Desktop/
 exit
+echo hello

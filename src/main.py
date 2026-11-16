@@ -29,45 +29,56 @@ VER = uconst.VER
 
 MIN_ARGS = 0
 MAX_ARGS = 1
+USAGE = (f"{PROG} [FLAGS] [OPTS] [ARGS]",)
 ARGS = ugen.Args({
     "FILE": ("Script to run",),
 })
 OPTS = ugen.Opts({
     "DEBUG-TIME-UNIT": (
         ("-t", "--debug-time-unit"),
-        ("Unit for debugging time output", "Valid: 'ns', 'us', 'ms', 's'"),
+        ("Unit for debugging time output", "Valid: 'ns', 'us', 'ms', 's'", "Default: 'ms'"),
     ),
     "LINE-MODE": (
-        ("-l", "--line-mode"),
-        ("Line mode to use for input", "Valid: 'emacs', 'vi', 'raw'"),
+        ("-m", "--line-mode"),
+        ("Line mode to use for input", "Valid: 'emacs', 'vi', 'raw'", "Default: config-dependent"),
+    ),
+    "LOG-LEVEL": (
+        ("-l", "--log-level"),
+        (
+            "Minimum log level for STDERR",
+            "Valid: '[d]ebug', '[i]nfo', '[w]arn'",
+            "       '[e]rr', '[c]rit', '[f]atal'",
+            "Default: 'warn'",
+        ),
+    ),
+    "FILE-LOG-LEVEL": (
+        ("-f", "--file-log-level"),
+        ("[NOT IMPLEMENTED] In progress...",),
     ),
 })
 FLAGS = ugen.Flags({
-    "DEBUG": (("-d", "--debug"), ("Show debug messages",)),
     "HELP": (("-h", "--help"), ("Display help text",)),
-    "INFO": (("-i", "--info"), ("Show info messages",)),
     "LOAD-EXTERNAL": (("-p", "--preload-external"), ("Load all external commands on startup",)),
-    "NO-WARNINGS": (("-W", "--no-warnings"), ("Suppress warnings",)),
     "STDERR-ANSI": (("-e", "--preserve-stderr-ANSI"), ("Preserve ANSI codes in STDERR redirects",)),
     "STDOUT-ANSI": (("-o", "--preserve-stdout-ANSI"), ("Preserve ANSI codes in STDOUT redirects",)),
 })
 
 
 def prn_help():
-    # for calculating maximum header lengths
+    # For calculating maximum header lengths
     all_args = ARGS.get_all_args()
     all_opts = [", ".join(i) for i in OPTS.get_all_opts()]
     all_flags = [", ".join(i) for i in FLAGS.get_all_flags()]
 
-    # maximum allowed length of header for in-line
+    # Maximum allowed length of header for in-line
     MAX_HEADER_COL_WID = 12
-    # compulsory padding between in-line header and description
+    # Compulsory padding between in-line header and description
     HEADER_DESC_PADDING = 4
-    # maximum length of all headers
+    # Maximum length of all headers
     max_len = max((len(header) for header in all_args + all_opts + all_flags), default=0)
-    # left column (header column) fixed length
+    # Left column (header column) fixed length
     left_col = min(MAX_HEADER_COL_WID, max_len)
-    # padding for in front of lines 2 to end for multi-line descriptions
+    # Padding for in front of lines 2 to end for multi-line descriptions
     pad_for_newlines = f"\n\t{" " * (left_col + HEADER_DESC_PADDING)}"
 
     def _fmt_help_entry(header: str, desc: str) -> str:
@@ -84,19 +95,22 @@ def prn_help():
 
     to_prn = []
 
-    to_prn.append("ARGUMENTS".expandtabs(2))
+    to_prn.append("USAGE")
+    to_prn.extend(f"\t{i}".expandtabs(2) for i in USAGE)
+
+    to_prn.append("ARGUMENTS")
     for arg in ARGS:
         desc = ARGS.get(arg)
         to_prn.append(_fmt_help_entry(arg, desc))
 
-    to_prn.append("OPTIONS".expandtabs(2))
+    to_prn.append("OPTIONS")
     for opt_nm in OPTS:
         opts = OPTS.get_opts(opt_nm)
         header = ", ".join(opts)
         desc = OPTS.get_help(opt_nm)
         to_prn.append(_fmt_help_entry(header, desc))
 
-    to_prn.append("FLAGS".expandtabs(2))
+    to_prn.append("FLAGS")
     for flag_nm in FLAGS:
         flags = FLAGS.get_flags(flag_nm)
         header = ", ".join(flags)
@@ -122,15 +136,10 @@ def parse_argv(cfg: MainProgParsed, passed_params: list[str]) -> MainProgParsed:
     parse_opts_flags = True
     args = []
     idx = 0
-    #all_flags = tuple(flag for flags in FLAGS.values() for flag in flags)
-    #all_flags_opts = (
-    #    *all_flags,
-    #    *(opt for opts in OPTS.values() for opt in opts),
-    #)
 
     while idx < len(params):
         param = params[idx]
-        if not param.startswith("-") or not parse_opts_flags:
+        if param == "-" or not param.startswith("-") or not parse_opts_flags:
             args.append(param)
             idx += 1
             continue
@@ -141,41 +150,33 @@ def parse_argv(cfg: MainProgParsed, passed_params: list[str]) -> MainProgParsed:
         if param not in OPTS and param not in FLAGS:
             if [i for i in param[1 :] if f"-{i}" not in OPTS and f"-{i}" not in FLAGS]:
                 ugen.fatal_Q(f"Unknown token: '{param}'", ret=uerr.RC.MP_UNK_TOK)
-                sys.exit(uerr.RC.MP_UNK_TOK)
-            params[idx : idx + 1] = list(param[1 :])
+            params[idx : idx + 1] = [f"-{i}" for i in param[1 :]]
             continue
 
         # Flags
-        if param in FLAGS.get_flags("DEBUG"):
-            cfg.log_lvl = leng.LogLvls.DEBUG
+        if param in FLAGS.get_flags("HELP"):
+            prn_help()
+            sys.exit(uerr.RC.ALL_GOOD)
         elif param in FLAGS.get_flags("LOAD-EXTERNAL"):
             cfg.pre_ld_ext_cmds = True
         elif param in FLAGS.get_flags("STDOUT-ANSI"):
             cfg.stdout_ansi = True
         elif param in FLAGS.get_flags("STDERR-ANSI"):
             cfg.stderr_ansi = True
-        elif param in FLAGS.get_flags("INFO"):
-            cfg.log_lvl = leng.LogLvls.INFO
-        elif param in FLAGS.get_flags("NO-WARNINGS"):
-            if cfg.log_lvl <= leng.LogLvls.WARN:
-                cfg.log_lvl = leng.LogLvls.ERR
-        elif param in FLAGS.get_flags("HELP"):
-            prn_help()
-            sys.exit(uerr.RC.ALL_GOOD)
         # Options after this, hence check if value is present
         elif idx >= len(params) - 1:
             ugen.err_Q(f"Expected value for '{param}'")
             sys.exit(uerr.RC.MP_EXPD_VAL_OPT)
         # Options
-        elif param in OPTS.get_opt("LINE-MODE"):
-            val = passed_params[idx + 1]
+        elif param in OPTS.get_opts("LINE-MODE"):
+            val = params[idx + 1]
             if val not in ("emacs", "vi", "raw"):
-                ugen.err_Q(f"Invalid value for '{param}': '{val}'")
+                ugen.err_Q(f"Invalid value for {param!r}: {val!r}")
                 sys.exit(uerr.RC.MP_INV_VAL)
             cfg.ln_mode = val
             idx += 1
-        elif param in OPTS.get_opt("DEBUG-TIME-UNIT"):
-            val = passed_params[idx + 1]
+        elif param in OPTS.get_opts("DEBUG-TIME-UNIT"):
+            val = params[idx + 1]
             if val == "ms":
                 cfg.debug_time_expo = 6
             elif val == "us":
@@ -185,7 +186,25 @@ def parse_argv(cfg: MainProgParsed, passed_params: list[str]) -> MainProgParsed:
             elif val == "s":
                 cfg.debug_time_expo = 9
             else:
-                ugen.err_Q(f"Invalid value for '{param}': '{val}'")
+                ugen.err_Q(f"Invalid value for {param!r}: {val!r}")
+                sys.exit(uerr.RC.MP_INV_VAL)
+            idx += 1
+        elif param in OPTS.get_opts("LOG-LEVEL"):
+            val = params[idx + 1]
+            if val in ("d", "debug"):
+                cfg.log_lvl = leng.LogLvls.DEBUG
+            elif val in ("i", "info"):
+                cfg.log_lvl = leng.LogLvls.INFO
+            elif val in ("w", "warn"):
+                cfg.log_lvl = leng.LogLvls.WARN
+            elif val in ("e", "err"):
+                cfg.log_lvl = leng.LogLvls.ERR
+            elif val in ("c", "crit"):
+                cfg.log_lvl = leng.LogLvls.CRIT
+            elif val in ("f", "fatal"):
+                cfg.log_lvl = leng.LogLvls.FATAL
+            else:
+                ugen.err_Q(f"Invalid value for {param!r}: {val!r}")
                 sys.exit(uerr.RC.MP_INV_VAL)
             idx += 1
         # Not needed, but let it be there
@@ -198,8 +217,8 @@ def parse_argv(cfg: MainProgParsed, passed_params: list[str]) -> MainProgParsed:
     args_len = len(args)
     if not (MIN_ARGS <= args_len <= MAX_ARGS):
         ugen.fatal_Q(
-            f"Argument {"underflow" if MIN_ARGS < args_len else "overflow"}: {args_len} not in [{MIN_ARGS}, {MAX_ARGS}]",
-            ret=uerr.RC.INSUFF_ARGS if MIN_ARGS < args_len else uerr.RC.UNEXPD_ARGS,
+            f"Argument {"underflow" if args_len < MIN_ARGS else "overflow"}: {args_len} not in [{MIN_ARGS}, {MAX_ARGS}]",
+            ret=uerr.RC.INSUFF_ARGS if args_len < MIN_ARGS else uerr.RC.UNEXPD_ARGS,
         )
 
     if len(args) >= 1:
@@ -270,7 +289,7 @@ def main() -> None:
             ugen.fatal_Q(f"Access denied: {parsed.fl!r}", ret=uerr.RC.MP_PERM_DENIED)
         except IsADirectoryError:
             ugen.fatal_Q(f"Is a directory: {parsed.fl!r}", ret=uerr.RC.MP_IS_A_DIR)
-        except OSError:
+        except OSError as e:
             ugen.fatal_Q(f"OS error; {e.strerror}: {parsed.fl!r}", ret=uerr.RC.MP_OS_ERR)
         except UnicodeDecodeError:
             ugen.fatal_Q(f"Does not appear to contain text: {parsed.fl!r}", ret=uerr.RC.MP_DECODE_ERR)

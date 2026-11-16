@@ -1,11 +1,11 @@
 run: ./dev/pc.py ./src/main.py
-	./dev/pc.py
+	./dev/pc.py -r
 
 build: ./dev/pc.py ./src/main.py
 	./dev/pc.py
 
 release: ./dev/pc.py ./src/main.py
-	./dev/pc.py --enable-lto
+	./dev/pc.py -e release
 
 debug: ./dev/pc.py ./src/main.py
-	./dev/pc.py --debug-build
+	./dev/pc.py -e debug
