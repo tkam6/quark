@@ -1,6 +1,8 @@
 # QUARK
 
-A pure-Python, extensible command-line shell with its own parser, execution engine, pipeline system and scripting environment. Quark focuses on simplicity and lightweightness. Holy larp.
+A pure-Python, extensible command-line shell with its own parser, execution
+engine, pipeline system and scripting environment. Quark focuses on simplicity
+and lightweightness. Holy larp.
 
 See [`docs/`](./docs/) for detailed documentation on modules and internals.  
 See [`dev/`](./dev/) for development notes and plans.  
@@ -10,9 +12,13 @@ See [`dev/issues.md`](./dev/issues.md) for bugs and issues in the project.
 
 ## Why Quark?
 
-Quark started off as a project for myself to learn how shells work. That is why instead of wrapping an existing shell, everything is implemented from scratch. You name it: parser, command execution model, pipelines, environment handling.
+Quark started off as a project for myself to learn how shells work. That is why
+instead of wrapping an existing shell, everything is implemented from scratch.
+You name it: parser, command execution model, pipelines, environment handling.
 
-You know, the goal is not to replace Bash or Zsh or other mature shells. Rather, this is merely an experiment in language and shell design and architecture, and interpreters.
+You know, the goal is not to replace Bash or Zsh or other mature shells.
+Rather, this is merely an experiment in language and shell design and
+architecture, and interpreters.
 
 ## Highlights
 
