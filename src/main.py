@@ -55,16 +55,24 @@ OPTS = ugen.Opts({
         ("-f", "--file-log-level"),
         ("[NOT IMPLEMENTED] In progress...",),
     ),
+    "ALTERNATE-CONFIG": (
+        ("-c", "--config"),
+        ("[NOT IMPLEMENTED] In progress...",),
+    ),
 })
 FLAGS = ugen.Flags({
     "HELP": (("-h", "--help"), ("Display help text",)),
+    "VERSION": (("-v", "--version"), ("Display program version",)),
     "LOAD-EXTERNAL": (("-p", "--preload-external"), ("Load all external commands on startup",)),
+    "NO-CONFIG": (("-C", "--no-config"), ("[NOT IMPLEMENTED] In progress...",)),
     "STDERR-ANSI": (("-e", "--preserve-stderr-ANSI"), ("Preserve ANSI codes in STDERR redirects",)),
     "STDOUT-ANSI": (("-o", "--preserve-stdout-ANSI"), ("Preserve ANSI codes in STDOUT redirects",)),
 })
 
 
 def prn_help():
+    is_tty = os.isatty(sys.stdout.fileno())
+
     # For calculating maximum header lengths
     all_args = ARGS.get_all_args()
     all_opts = [", ".join(i) for i in OPTS.get_all_opts()]
@@ -82,35 +90,36 @@ def prn_help():
     pad_for_newlines = f"\n\t{" " * (left_col + HEADER_DESC_PADDING)}"
 
     def _fmt_help_entry(header: str, desc: str) -> str:
+        header = ugen.S.fmt(header, is_tty, ugen.S.cyan_4)
         first_ln = desc[0] if desc else ""
         rest_lns = (pad_for_newlines + pad_for_newlines.join(desc[1 :])) if desc[1 :] else ""
         desc = first_ln + rest_lns
         # in-line header and description
         if len(header) <= left_col:
-            header = header.ljust(left_col)
+            header = ugen.ljust(ugen.S.fmt(header, is_tty, ugen.S.cyan_4), left_col)
         # otherwise (description starts from next line)
         else:
             desc = pad_for_newlines + desc
-        return f"\t{header}{" " * HEADER_DESC_PADDING}{desc}".expandtabs(2)
+        return f"\t{header}{" " * HEADER_DESC_PADDING}{desc}".expandtabs(uconst.TAB_SZ)
 
     to_prn = []
 
-    to_prn.append("USAGE")
-    to_prn.extend(f"\t{i}".expandtabs(2) for i in USAGE)
+    to_prn.append(ugen.S.fmt("USAGE", is_tty, ugen.S.magenta_4))
+    to_prn.extend(f"\t{i}".expandtabs(uconst.TAB_SZ) for i in USAGE)
 
-    to_prn.append("ARGUMENTS")
+    to_prn.append(ugen.S.fmt("ARGUMENTS", is_tty, ugen.S.magenta_4))
     for arg in ARGS:
         desc = ARGS.get(arg)
         to_prn.append(_fmt_help_entry(arg, desc))
 
-    to_prn.append("OPTIONS")
+    to_prn.append(ugen.S.fmt("OPTIONS", is_tty, ugen.S.magenta_4))
     for opt_nm in OPTS:
         opts = OPTS.get_opts(opt_nm)
         header = ", ".join(opts)
         desc = OPTS.get_help(opt_nm)
         to_prn.append(_fmt_help_entry(header, desc))
 
-    to_prn.append("FLAGS")
+    to_prn.append(ugen.S.fmt("FLAGS", is_tty, ugen.S.magenta_4))
     for flag_nm in FLAGS:
         flags = FLAGS.get_flags(flag_nm)
         header = ", ".join(flags)
@@ -156,6 +165,9 @@ def parse_argv(cfg: MainProgParsed, passed_params: list[str]) -> MainProgParsed:
         # Flags
         if param in FLAGS.get_flags("HELP"):
             prn_help()
+            sys.exit(uerr.RC.ALL_GOOD)
+        elif param in FLAGS.get_flags("VERSION"):
+            ugen.write(VER + "\n")
             sys.exit(uerr.RC.ALL_GOOD)
         elif param in FLAGS.get_flags("LOAD-EXTERNAL"):
             cfg.pre_ld_ext_cmds = True
