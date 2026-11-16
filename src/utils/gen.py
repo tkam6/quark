@@ -1,3 +1,4 @@
+import collections as col
 import dataclasses as dcs
 import os
 import re
@@ -14,6 +15,62 @@ if ty.TYPE_CHECKING:
     from src.intrpr import cmd_reslvr as icrsr
     from src.intrpr import eng as ieng
     from src.intrpr import internals as iint
+
+
+# NOTE: subclass from collections.UserDict if any overloading is done, fuckface!
+class Args(col.UserDict[str, tuple[str, ...]]):
+    def get_all_args(self) -> list[str]:
+        return list(self)
+
+
+@dcs.dataclass(frozen=True)
+class Opts:
+    opts: dict[str, tuple[tuple[str, ...], tuple[str, ...]]]
+    all_opts: list[str] = dcs.field(default_factory=tuple, init=False)
+
+    def __post_init__(self) -> None:
+        all_opts = [opt for opts, _ in self.opts.values() for opt in opts]
+        object.__setattr__(self, "all_opts", tuple(all_opts))
+
+    def __iter__(self) -> ty.Generator[str]:
+        yield from self.opts
+
+    def __contains__(self, opt: str) -> bool:
+        return opt in self.all_opts
+
+    def get_all_opts(self) -> list[tuple[str, ...]]:
+        return [self.get_opts(opt_nm) for opt_nm in self.opts]
+
+    def get_opts(self, opt_nm: str) -> tuple[str, ...] | None:
+        return tmp[0] if (tmp := self.opts.get(opt_nm)) is not None else None
+
+    def get_help(self, opt_nm: str) -> str | None:
+        return tmp[1] if (tmp := self.opts.get(opt_nm)) is not None else None
+
+
+@dcs.dataclass(frozen=True)
+class Flags:
+    flags: dict[str, tuple[tuple[str, ...], tuple[str, ...]]]
+    all_flags: list[str] = dcs.field(default_factory=tuple, init=False)
+
+    def __post_init__(self) -> None:
+        all_flags = [flag for flags, _ in self.flags.values() for flag in flags]
+        object.__setattr__(self, "all_flags", tuple(all_flags))
+
+    def __iter__(self) -> ty.Generator[str]:
+        yield from self.flags
+
+    def __contains__(self, flag: str) -> bool:
+        return flag in self.all_flags
+
+    def get_all_flags(self) -> list[tuple[str, ...]]:
+        return [self.get_flags(flag_nm) for flag_nm in self.flags]
+
+    def get_flags(self, flag_nm: str) -> tuple[str, ...] | None:
+        return tmp[0] if (tmp := self.flags.get(flag_nm)) is not None else None
+
+    def get_help(self, flag_nm: str) -> str | None:
+        return tmp[1] if (tmp := self.flags.get(flag_nm)) is not None else None
 
 
 #########################
@@ -268,9 +325,19 @@ def fatal_Q(
         _lgrs.fl_lgr.fatal(fl_log_txt)
     else:
         sys.stderr.write(
-            f"{uconst.ANSI_BOLD_RED_4}FQ:{uconst.ANSI_RESET} {src}{msg}\n"
+            f"{uconst.ANSI_BOLD_RED_4}FQ:{uconst.ANSI_RESET} {src}{msg}\n",
         )
         sys.stderr.flush()
+        log_fl_warn = f"{uconst.ANSI_BOLD_YELLOW_4}WQ:{uconst.ANSI_RESET}"
+        try:
+            with open(uconst.LOG_FL, "a") as f:
+                f.write(fl_log_txt)
+        except PermissionError:
+            sys.stderr.write(f"{log_fl_warn} (in fatal_Q) Access denied: {uconst.LOG_FL!r}")
+        except IsADirectoryError:
+            sys.stderr.write(f"{log_fl_warn} (in fatal_Q) Is a directory: {uconst.LOG_FL!r}")
+        except OSError as e:
+            sys.stderr.write(f"{log_fl_warn} (in fatal_Q) OS error; {e.strerror}: {uconst.LOG_FL!r}")
     sys.exit(ret)
 
 

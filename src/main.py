@@ -16,57 +16,94 @@ from src.utils import err_codes as uerr
 from src.utils import gen as ugen
 
 if not sys.argv:
-    # PROG = "[main]"
-    ugen.fatal("What kind of sorcery is this? Why is the program run this way? (sys.argv is empty)")
+    ugen.fatal_Q(
+        "What kind of sorcery is this? Why is the program run this way? (sys.argv is empty)",
+        ret=uerr.RC.MP_SORCERY_EXIT,
+    )
 PROG = sys.argv[0]
 # Nuitka overwrites sys.argv[0], and provides __compiled__ with original argv
 if "__compiled__" in locals():
     PROG = __compiled__.original_argv0         # noqa: F821
 
 VER = uconst.VER
+
 MIN_ARGS = 0
 MAX_ARGS = 1
-OPTS = {
-    "DEBUG-TIME-UNIT": ("-t", "--debug-time-unit"),
-    "LINE-MODE": ("-l", "--line-mode"),
-}
-FLAGS = {
-    "DEBUG": ("-d", "--debug"),
-    "HELP": ("-h", "--help"),
-    "INFO": ("-i", "--info"),
-    "LOAD-EXTERNAL": ("-p", "--preload-external"),
-    "NO-WARNINGS": ("-W", "--no-warnings"),
-    "STDERR-ANSI": ("-e", "--preserve-stderr-ANSI"),
-    "STDOUT-ANSI": ("-o", "--preserve-stdout-ANSI"),
-}
+ARGS = ugen.Args({
+    "FILE": ("Script to run",),
+})
+OPTS = ugen.Opts({
+    "DEBUG-TIME-UNIT": (
+        ("-t", "--debug-time-unit"),
+        ("Unit for debugging time output", "Valid: 'ns', 'us', 'ms', 's'"),
+    ),
+    "LINE-MODE": (
+        ("-l", "--line-mode"),
+        ("Line mode to use for input", "Valid: 'emacs', 'vi', 'raw'"),
+    ),
+})
+FLAGS = ugen.Flags({
+    "DEBUG": (("-d", "--debug"), ("Show debug messages",)),
+    "HELP": (("-h", "--help"), ("Display help text",)),
+    "INFO": (("-i", "--info"), ("Show info messages",)),
+    "LOAD-EXTERNAL": (("-p", "--preload-external"), ("Load all external commands on startup",)),
+    "NO-WARNINGS": (("-W", "--no-warnings"), ("Suppress warnings",)),
+    "STDERR-ANSI": (("-e", "--preserve-stderr-ANSI"), ("Preserve ANSI codes in STDERR redirects",)),
+    "STDOUT-ANSI": (("-o", "--preserve-stdout-ANSI"), ("Preserve ANSI codes in STDOUT redirects",)),
+})
 
-# TODO: Update the help string
-HELP_TXT = (
-    "USAGE",
-    f"\t{PROG} [flag ...] [opt val ...] [file]",
-    "ARGUMENTS",
-    "\tfl          Script to run",
-    "OPTIONS",
-    "\t-l, --line-mode",
-    "\t            Line mode to use for input",
-    "\t            Valid: 'emacs', 'vi', 'raw'",
-    "\t-t, --debug-time-unit unit",
-    "\t            Unit for debugging time output",
-    "\t            Valid: 'ns', 'us', 'ms', 's'",
-    "FLAGS",
-    "\t-d, --debug",
-    "\t            Show debug messages",
-    "\t-e, --preserve-ANSI-stderr",
-    "\t            Preserve ANSI codes in STDERR redirects",
-    "\t-h, --help  Display help text",
-    "\t-i, --info  Show info messages",
-    "\t-o, --preserve-ANSI-stdout",
-    "\t            Preserve ANSI codes in STDOUT redirects",
-    "\t-p, --load-external",
-    "\t            Load all external commands on startup",
-    "\t-W, --no-warnings",
-    "\t            Suppress warnings",
-)
+
+def prn_help():
+    # for calculating maximum header lengths
+    all_args = ARGS.get_all_args()
+    all_opts = [", ".join(i) for i in OPTS.get_all_opts()]
+    all_flags = [", ".join(i) for i in FLAGS.get_all_flags()]
+
+    # maximum allowed length of header for in-line
+    MAX_HEADER_COL_WID = 12
+    # compulsory padding between in-line header and description
+    HEADER_DESC_PADDING = 4
+    # maximum length of all headers
+    max_len = max((len(header) for header in all_args + all_opts + all_flags), default=0)
+    # left column (header column) fixed length
+    left_col = min(MAX_HEADER_COL_WID, max_len)
+    # padding for in front of lines 2 to end for multi-line descriptions
+    pad_for_newlines = f"\n\t{" " * (left_col + HEADER_DESC_PADDING)}"
+
+    def _fmt_help_entry(header: str, desc: str) -> str:
+        first_ln = desc[0] if desc else ""
+        rest_lns = (pad_for_newlines + pad_for_newlines.join(desc[1 :])) if desc[1 :] else ""
+        desc = first_ln + rest_lns
+        # in-line header and description
+        if len(header) <= left_col:
+            header = header.ljust(left_col)
+        # otherwise (description starts from next line)
+        else:
+            desc = pad_for_newlines + desc
+        return f"\t{header}{" " * HEADER_DESC_PADDING}{desc}".expandtabs(2)
+
+    to_prn = []
+
+    to_prn.append("ARGUMENTS".expandtabs(2))
+    for arg in ARGS:
+        desc = ARGS.get(arg)
+        to_prn.append(_fmt_help_entry(arg, desc))
+
+    to_prn.append("OPTIONS".expandtabs(2))
+    for opt_nm in OPTS:
+        opts = OPTS.get_opts(opt_nm)
+        header = ", ".join(opts)
+        desc = OPTS.get_help(opt_nm)
+        to_prn.append(_fmt_help_entry(header, desc))
+
+    to_prn.append("FLAGS".expandtabs(2))
+    for flag_nm in FLAGS:
+        flags = FLAGS.get_flags(flag_nm)
+        header = ", ".join(flags)
+        desc = FLAGS.get_help(flag_nm)
+        to_prn.append(_fmt_help_entry(header, desc))
+
+    ugen.write("\n".join(to_prn) + "\n")
 
 
 @dcs.dataclass
@@ -85,11 +122,11 @@ def parse_argv(cfg: MainProgParsed, passed_params: list[str]) -> MainProgParsed:
     parse_opts_flags = True
     args = []
     idx = 0
-    all_flags = tuple(flag for flags in FLAGS.values() for flag in flags)
-    all_flags_opts = (
-        *all_flags,
-        *(opt for opts in OPTS.values() for opt in opts),
-    )
+    #all_flags = tuple(flag for flags in FLAGS.values() for flag in flags)
+    #all_flags_opts = (
+    #    *all_flags,
+    #    *(opt for opts in OPTS.values() for opt in opts),
+    #)
 
     while idx < len(params):
         param = params[idx]
@@ -101,43 +138,43 @@ def parse_argv(cfg: MainProgParsed, passed_params: list[str]) -> MainProgParsed:
             parse_opts_flags = False
             idx += 1
             continue
-        if param not in all_flags_opts:
-            if [i for i in param[1 :] if f"-{i}" not in all_flags]:
-                ugen.fatal_Q(f"Unknown parameter: '{param}'", ret=uerr.RC.MP_UNK_TOK)
+        if param not in OPTS and param not in FLAGS:
+            if [i for i in param[1 :] if f"-{i}" not in OPTS and f"-{i}" not in FLAGS]:
+                ugen.fatal_Q(f"Unknown token: '{param}'", ret=uerr.RC.MP_UNK_TOK)
                 sys.exit(uerr.RC.MP_UNK_TOK)
             params[idx : idx + 1] = list(param[1 :])
             continue
 
         # Flags
-        if param in FLAGS["DEBUG"]:
+        if param in FLAGS.get_flags("DEBUG"):
             cfg.log_lvl = leng.LogLvls.DEBUG
-        elif param in FLAGS["LOAD-EXTERNAL"]:
+        elif param in FLAGS.get_flags("LOAD-EXTERNAL"):
             cfg.pre_ld_ext_cmds = True
-        elif param in FLAGS["STDOUT-ANSI"]:
+        elif param in FLAGS.get_flags("STDOUT-ANSI"):
             cfg.stdout_ansi = True
-        elif param in FLAGS["STDERR-ANSI"]:
+        elif param in FLAGS.get_flags("STDERR-ANSI"):
             cfg.stderr_ansi = True
-        elif param in FLAGS["INFO"]:
+        elif param in FLAGS.get_flags("INFO"):
             cfg.log_lvl = leng.LogLvls.INFO
-        elif param in FLAGS["NO-WARNINGS"]:
+        elif param in FLAGS.get_flags("NO-WARNINGS"):
             if cfg.log_lvl <= leng.LogLvls.WARN:
                 cfg.log_lvl = leng.LogLvls.ERR
-        elif param in FLAGS["HELP"]:
-            ugen.write("\n".join(HELP_TXT).expandtabs(2))
+        elif param in FLAGS.get_flags("HELP"):
+            prn_help()
             sys.exit(uerr.RC.ALL_GOOD)
         # Options after this, hence check if value is present
         elif idx >= len(params) - 1:
             ugen.err_Q(f"Expected value for '{param}'")
             sys.exit(uerr.RC.MP_EXPD_VAL_OPT)
         # Options
-        elif param in OPTS["LINE-MODE"]:
+        elif param in OPTS.get_opt("LINE-MODE"):
             val = passed_params[idx + 1]
             if val not in ("emacs", "vi", "raw"):
                 ugen.err_Q(f"Invalid value for '{param}': '{val}'")
                 sys.exit(uerr.RC.MP_INV_VAL)
             cfg.ln_mode = val
             idx += 1
-        elif param in OPTS["DEBUG-TIME-UNIT"]:
+        elif param in OPTS.get_opt("DEBUG-TIME-UNIT"):
             val = passed_params[idx + 1]
             if val == "ms":
                 cfg.debug_time_expo = 6

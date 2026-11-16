@@ -15,7 +15,8 @@ class RC(enum.IntEnum):
     FALSE = enum.auto()
 
     # MAIN PROGRAM
-    MP_EXPD_VAL_OPT = enum.auto(2)
+    MP_SORCERY_EXIT = enum.auto(2)
+    MP_EXPD_VAL_OPT = enum.auto()
     MP_UNK_TOK = enum.auto()
     MP_INV_VAL = enum.auto()
     MP_BEAUTY_OVERLD = enum.auto()
